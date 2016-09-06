@@ -22,4 +22,5 @@
 from l10n_br_zip import *
 from myo_address_mng import *
 from myo_mfile import *
+from myo_person_mng import *
 from myo_tag import *
