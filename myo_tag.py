@@ -24,6 +24,25 @@ from __future__ import print_function
 import sqlite3
 
 
+def myo_tag_get_id(client, tag_name, tag_description=False):
+
+    tag = client.model('myo.tag')
+    tag_browse = tag.browse([('name', '=', tag_name), ])
+    tag_id = tag_browse.id
+
+    if tag_id == []:
+        values = {
+            'name': tag_name,
+            # 'code': '/',
+            'description': tag_description,
+        }
+        tag_id = tag.create(values).id
+    else:
+        tag_id = tag_id[0]
+
+    return tag_id
+
+
 def clv_tag_export_sqlite(client, args, db_path, table_name):
 
     conn = sqlite3.connect(db_path)
