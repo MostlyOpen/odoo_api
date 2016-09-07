@@ -24,7 +24,7 @@ from __future__ import print_function
 import sqlite3
 
 
-def myo_tag_get_id(client, tag_name, tag_description=False):
+def tag_get_id(client, tag_name, tag_description=False):
 
     tag = client.model('myo.tag')
     tag_browse = tag.browse([('name', '=', tag_name), ])
@@ -94,7 +94,7 @@ def clv_tag_export_sqlite(client, args, db_path, table_name):
     print('--> tag_count: ', tag_count)
 
 
-def myo_tag_export_sqlite(client, args, db_path, table_name):
+def tag_export_sqlite(client, args, db_path, table_name):
 
     conn = sqlite3.connect(db_path)
     conn.text_factory = str
@@ -109,6 +109,7 @@ def myo_tag_export_sqlite(client, args, db_path, table_name):
             id INTEGER NOT NULL PRIMARY KEY,
             name,
             code,
+            description,
             notes TEXT,
             new_id INTEGER
             );
@@ -128,12 +129,14 @@ def myo_tag_export_sqlite(client, args, db_path, table_name):
                            id,
                            name,
                            code,
+                           description,
                            notes
                            )
-                       VALUES(?,?,?,?)''',
+                       VALUES(?,?,?,?,?)''',
                        (tag.id,
                         tag.name,
                         tag.code,
+                        tag.description,
                         tag.notes
                         )
                        )
@@ -145,7 +148,7 @@ def myo_tag_export_sqlite(client, args, db_path, table_name):
     print('--> tag_count: ', tag_count)
 
 
-def myo_tag_import_sqlite(client, args, db_path, table_name):
+def tag_import_sqlite(client, args, db_path, table_name):
 
     conn = sqlite3.connect(db_path)
     conn.text_factory = str
@@ -159,6 +162,7 @@ def myo_tag_import_sqlite(client, args, db_path, table_name):
             id,
             name,
             code,
+            description,
             notes,
             new_id
         FROM ''' + table_name + ''';
@@ -172,12 +176,13 @@ def myo_tag_import_sqlite(client, args, db_path, table_name):
     for row in cursor:
         tag_count += 1
 
-        print(tag_count, row[0], row[1], row[2], row[3], row[4])
+        print(tag_count, row[0], row[1], row[2], row[3], row[4], row[5])
 
         values = {
             'name': row[1],
             'code': row[2],
-            'notes': row[3],
+            'description': row[3],
+            'notes': row[4],
         }
         tag_id = myo_tag.create(values).id
 
