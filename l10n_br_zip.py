@@ -23,6 +23,7 @@ from __future__ import print_function
 
 import re
 import requests
+import sqlite3
 
 
 def search_by_cep(client, zip_code):
@@ -59,3 +60,131 @@ def search_by_cep(client, zip_code):
 
         except Exception as e:
             print(e.message)
+
+
+def l10n_br_zip_export_sqlite(client, args, db_path, table_name):
+
+    conn = sqlite3.connect(db_path)
+    conn.text_factory = str
+
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''DROP TABLE ''' + table_name + ''';''')
+    except Exception as e:
+        print('------->', e)
+    cursor.execute(
+        '''
+        CREATE TABLE ''' + table_name + ''' (
+            id INTEGER NOT NULL PRIMARY KEY,
+            zip,
+            street_type,
+            street,
+            district,
+            country_id,
+            state_id,
+            l10n_br_city_id,
+            new_id INTEGER
+            );
+        '''
+    )
+
+    l10n_br_zip_model = client.model('l10n_br.zip')
+    l10n_br_zip_browse = l10n_br_zip_model.browse(args)
+
+    l10n_br_zip_count = 0
+    for l10n_br_zip_reg in l10n_br_zip_browse:
+        l10n_br_zip_count += 1
+
+        print(l10n_br_zip_count, l10n_br_zip_reg.id, l10n_br_zip_reg.zip)
+
+        cursor.execute('''
+            INSERT INTO ''' + table_name + '''(
+                id,
+                zip,
+                street_type,
+                street,
+                district,
+                country_id,
+                state_id,
+                l10n_br_city_id
+                )
+            VALUES(?,?,?,?,?,?,?,?)
+            ''', (l10n_br_zip_reg.id,
+                  l10n_br_zip_reg.zip,
+                  l10n_br_zip_reg.street_type,
+                  l10n_br_zip_reg.street,
+                  l10n_br_zip_reg.district,
+                  l10n_br_zip_reg.country_id.id,
+                  l10n_br_zip_reg.state_id.id,
+                  l10n_br_zip_reg.l10n_br_city_id.id,
+                  )
+        )
+
+    conn.commit()
+    conn.close()
+
+    print()
+    print('--> l10n_br_zip_count: ', l10n_br_zip_count)
+
+
+def l10n_br_zip_import_sqlite(client, args, db_path, table_name):
+
+    conn = sqlite3.connect(db_path)
+    conn.text_factory = str
+
+    cursor = conn.cursor()
+
+    cursor2 = conn.cursor()
+
+    data = cursor.execute(
+        '''
+        SELECT
+            id,
+            zip,
+            street_type,
+            street,
+            district,
+            country_id,
+            state_id,
+            l10n_br_city_id,
+            new_id
+        FROM ''' + table_name + ''';
+        '''
+    )
+
+    l10n_br_zip_model = client.model('l10n_br.zip')
+
+    print(data)
+    print([field[0] for field in cursor.description])
+    l10n_br_zip_count = 0
+    for row in cursor:
+        l10n_br_zip_count += 1
+
+        print(l10n_br_zip_count, row[0], row[1], row[2])
+
+        values = {
+            'zip': row[1],
+            'street_type': row[2],
+            'street': row[3],
+            'district': row[4],
+            'country_id': row[5],
+            'state_id': row[6],
+            'l10n_br_city_id': row[7],
+        }
+        l10n_br_zip_id = l10n_br_zip_model.create(values).id
+
+        cursor2.execute(
+            '''
+           UPDATE ''' + table_name + '''
+           SET new_id = ?
+           WHERE id = ?;''',
+            (l10n_br_zip_id,
+             row[0]
+             )
+        )
+
+    conn.commit()
+    conn.close()
+
+    print()
+    print('--> l10n_br_zip_count: ', l10n_br_zip_count)
