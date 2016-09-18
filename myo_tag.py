@@ -58,65 +58,15 @@ def clv_tag_export_sqlite(client, args, db_path, table_name):
             id INTEGER NOT NULL PRIMARY KEY,
             name,
             code,
+            description,
             notes TEXT,
+            color,
             new_id INTEGER
             );
     ''')
 
     clv_tag = client.model('clv_tag')
     tag_browse = clv_tag.browse(args)
-
-    tag_count = 0
-    for tag in tag_browse:
-        tag_count += 1
-
-        print(tag_count, tag.id, tag.code, tag.name.encode("utf-8"), tag.notes)
-
-        cursor.execute('''
-                       INSERT INTO ''' + table_name + '''(
-                           id,
-                           name,
-                           code,
-                           notes
-                           )
-                       VALUES(?,?,?,?)''',
-                       (tag.id,
-                        tag.name,
-                        tag.code,
-                        tag.notes
-                        )
-                       )
-
-    conn.commit()
-    conn.close()
-
-    print()
-    print('--> tag_count: ', tag_count)
-
-
-def tag_export_sqlite(client, args, db_path, table_name):
-
-    conn = sqlite3.connect(db_path)
-    conn.text_factory = str
-
-    cursor = conn.cursor()
-    try:
-        cursor.execute('''DROP TABLE ''' + table_name + ''';''')
-    except Exception as e:
-        print('------->', e)
-    cursor.execute('''
-        CREATE TABLE ''' + table_name + ''' (
-            id INTEGER NOT NULL PRIMARY KEY,
-            name,
-            code,
-            description,
-            notes TEXT,
-            new_id INTEGER
-            );
-    ''')
-
-    myo_tag = client.model('myo.tag')
-    tag_browse = myo_tag.browse(args)
 
     tag_count = 0
     for tag in tag_browse:
@@ -148,6 +98,63 @@ def tag_export_sqlite(client, args, db_path, table_name):
     print('--> tag_count: ', tag_count)
 
 
+def tag_export_sqlite(client, args, db_path, table_name):
+
+    conn = sqlite3.connect(db_path)
+    conn.text_factory = str
+
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''DROP TABLE ''' + table_name + ''';''')
+    except Exception as e:
+        print('------->', e)
+    cursor.execute('''
+        CREATE TABLE ''' + table_name + ''' (
+            id INTEGER NOT NULL PRIMARY KEY,
+            name,
+            code,
+            description,
+            notes TEXT,
+            color,
+            new_id INTEGER
+            );
+    ''')
+
+    myo_tag = client.model('myo.tag')
+    tag_browse = myo_tag.browse(args)
+
+    tag_count = 0
+    for tag in tag_browse:
+        tag_count += 1
+
+        print(tag_count, tag.id, tag.code, tag.name.encode("utf-8"), tag.notes)
+
+        cursor.execute('''
+                       INSERT INTO ''' + table_name + '''(
+                           id,
+                           name,
+                           code,
+                           description,
+                           notes,
+                           color
+                           )
+                       VALUES(?,?,?,?,?,?)''',
+                       (tag.id,
+                        tag.name,
+                        tag.code,
+                        tag.description,
+                        tag.notes,
+                        tag.color
+                        )
+                       )
+
+    conn.commit()
+    conn.close()
+
+    print()
+    print('--> tag_count: ', tag_count)
+
+
 def tag_import_sqlite(client, args, db_path, table_name):
 
     conn = sqlite3.connect(db_path)
@@ -164,6 +171,7 @@ def tag_import_sqlite(client, args, db_path, table_name):
             code,
             description,
             notes,
+            color,
             new_id
         FROM ''' + table_name + ''';
     ''')
@@ -176,13 +184,14 @@ def tag_import_sqlite(client, args, db_path, table_name):
     for row in cursor:
         tag_count += 1
 
-        print(tag_count, row[0], row[1], row[2], row[3], row[4], row[5])
+        print(tag_count, row[0], row[1], row[2], row[3], row[4], row[5], row[6])
 
         values = {
             'name': row[1],
             'code': row[2],
             'description': row[3],
             'notes': row[4],
+            'color': row[5],
         }
         tag_id = myo_tag.create(values).id
 

@@ -25,6 +25,179 @@ import sqlite3
 import re
 
 
+def fmng_entity_export_sqlite(client, args, db_path, table_name):
+
+    conn = sqlite3.connect(db_path)
+    conn.text_factory = str
+
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''DROP TABLE ''' + table_name + ''';''')
+    except Exception as e:
+        print('------->', e)
+    cursor.execute('''
+        CREATE TABLE ''' + table_name + ''' (
+            id INTEGER NOT NULL PRIMARY KEY,
+            name,
+            alias,
+            entity_code_base,
+            image,
+            url,
+            description,
+            info TEXT,
+            entity_code_size,
+            parent_id INTEGER,
+            ct_url,
+            is_album,
+            inclusion_date,
+            entity_code,
+            path,
+            new_id INTEGER
+            );
+    ''')
+
+    fmng_entity = client.model('fmng.entity')
+    fmng_entity_browse = fmng_entity.browse(args)
+
+    fmng_entity_count = 0
+    for fmng_entity_reg in fmng_entity_browse:
+        fmng_entity_count += 1
+
+        parent_id = False
+        if fmng_entity_reg.parent_id is not False:
+            parent_id = fmng_entity_reg.parent_id.id
+
+        print(fmng_entity_count, fmng_entity_reg.id, parent_id, fmng_entity_reg.entity_code_base,
+              fmng_entity_reg.entity_code, fmng_entity_reg.inclusion_date, fmng_entity_reg.name.encode("utf-8")
+              )
+
+        cursor.execute('''
+                       INSERT INTO ''' + table_name + '''(
+                           id,
+                           name,
+                           alias,
+                           entity_code_base,
+                           image,
+                           url,
+                           description,
+                           info,
+                           entity_code_size,
+                           parent_id,
+                           ct_url,
+                           is_album,
+                           inclusion_date,
+                           entity_code,
+                           path
+                           )
+                       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+                       (fmng_entity_reg.id,
+                        fmng_entity_reg.name,
+                        fmng_entity_reg.alias,
+                        fmng_entity_reg.entity_code_base,
+                        fmng_entity_reg.image,
+                        fmng_entity_reg.url,
+                        fmng_entity_reg.description,
+                        fmng_entity_reg.info,
+                        fmng_entity_reg.entity_code_size,
+                        parent_id,
+                        fmng_entity_reg.ct_url,
+                        fmng_entity_reg.is_album,
+                        str(fmng_entity_reg.inclusion_date),
+                        fmng_entity_reg.entity_code,
+                        fmng_entity_reg.path,
+                        )
+                       )
+
+    conn.commit()
+    conn.close()
+
+    print()
+    print('--> fmng_entity_count: ', fmng_entity_count)
+
+
+def fmng_entity_import_sqlite(client, args, db_path, table_name):
+
+    conn = sqlite3.connect(db_path)
+    conn.text_factory = str
+
+    cursor = conn.cursor()
+
+    cursor2 = conn.cursor()
+
+    data = cursor.execute('''
+        SELECT
+            id,
+            name,
+            alias,
+            entity_code_base,
+            image,
+            url,
+            description,
+            info,
+            entity_code_size,
+            parent_id,
+            ct_url,
+            is_album,
+            inclusion_date,
+            entity_code,
+            path,
+            new_id
+        FROM ''' + table_name + ''';
+    ''')
+
+    # clv_file = client.model('clv_file')
+    myo_mfile = client.model('myo.mfile')
+
+    print(data)
+    print([field[0] for field in cursor.description])
+    fmng_entity_count = 0
+    for row in cursor:
+        fmng_entity_count += 1
+
+        print(fmng_entity_count, row[0], row[1], row[2], row[3], '', row[5],
+              row[6], '', row[8], row[9], row[10], row[11], row[12], row[15])
+
+        values = {
+            'name': row[1],
+            # 'alias': row[2],
+            'alias': row[14],
+            # 'code': row[3],
+            'code': row[13],
+            'description_old': row[6],
+            'notes_old': row[7],
+            'date_inclusion': row[12],
+            'active': True,
+            'url': row[5],
+            # 'ct_url': row[10],
+        }
+        # file_id = clv_file.create(values).id
+        file_id = myo_mfile.create(values).id
+
+        try:
+            values = {
+                'image': row[4],
+            }
+            # clv_file.write(file_id, values)
+            myo_mfile.write(file_id, values)
+        except Exception as e:
+            print('>>>>>', e)
+
+        cursor2.execute('''
+                       UPDATE ''' + table_name + '''
+                       SET new_id = ?
+                       WHERE id = ?;''',
+                        (file_id,
+                         row[0]
+                         )
+                        )
+
+    conn.commit()
+    conn.close()
+
+    print()
+    print('--> fmng_entity_count: ', fmng_entity_count)
+
+
 def clv_file_category_export_sqlite(client, args, db_path, table_name):
 
     conn = sqlite3.connect(db_path)
@@ -267,8 +440,8 @@ def myo_mfile_import_sqlite(client, args, db_path, table_name, category_table_na
             'name': row[1],
             'alias': row[2],
             'code': row[3],
-            'description': row[4],
-            'notes': row[5],
+            'description_old': row[4],
+            'notes_old': row[5],
             'date_inclusion': row[6],
             'active': row[7],
             'url': row[8],
