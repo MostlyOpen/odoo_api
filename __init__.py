@@ -24,3 +24,5 @@ from myo_address_mng import *
 from myo_mfile import *
 from myo_person_mng import *
 from myo_tag import *
+from res_partner import *
+from res_users import *
