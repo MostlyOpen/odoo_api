@@ -42,6 +42,7 @@ def person_mng_search_address(client, batch_name, state):
 
     print()
     print('--> rownum: ', rownum - 1)
+    print()
 
 
 def person_mng_create_person(client, batch_name, state):
@@ -81,3 +82,4 @@ def person_mng_create_person(client, batch_name, state):
 
     print()
     print('--> rownum: ', rownum - 1)
+    print()
