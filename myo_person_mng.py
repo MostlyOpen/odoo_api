@@ -49,6 +49,7 @@ def person_mng_create_person(client, batch_name, state):
 
     person_mng_model = client.model('myo.person.mng')
     person_model = client.model('myo.person')
+    person_address_model = client.model('myo.person.address')
 
     person_mng_browse = person_mng_model.browse([('batch_name', '=', batch_name), ('state', '=', state), ])
 
@@ -70,6 +71,12 @@ def person_mng_create_person(client, batch_name, state):
             "address_id": person_mng_reg.address_id.id,
         }
         person_reg_new = person_model.create(values)
+
+        values = {
+            'person_id': person_reg_new.id,
+            "address_id": person_mng_reg.address_id.id,
+        }
+        person_address_model.create(values)
 
         values = {
             "person_id": person_reg_new.id,
