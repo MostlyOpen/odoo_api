@@ -50,6 +50,7 @@ def address_mng_create_address(client, batch_name, state):
             'state_id': address_mng_reg.state_id,
             'l10n_br_city_id': address_mng_reg.l10n_br_city_id,
             'phone': address_mng_reg.phone,
+            'mobile': address_mng_reg.mobile,
             'tag_ids': tag_ids,
         }
         address_reg_new = address_model.create(values)
