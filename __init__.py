@@ -20,6 +20,7 @@
 ###############################################################################
 
 from l10n_br_zip import *
+from myo_address import *
 from myo_address_mng import *
 from myo_employee import *
 from myo_mfile import *
