@@ -97,6 +97,10 @@ def l10n_br_zip_export_sqlite(client, args, db_path, table_name):
 
         print(l10n_br_zip_count, l10n_br_zip_reg.id, l10n_br_zip_reg.zip)
 
+        street_type = None
+        if l10n_br_zip_reg.street_type:
+            street_type = l10n_br_zip_reg.street_type
+
         cursor.execute('''
             INSERT INTO ''' + table_name + '''(
                 id,
@@ -111,7 +115,7 @@ def l10n_br_zip_export_sqlite(client, args, db_path, table_name):
             VALUES(?,?,?,?,?,?,?,?)
             ''', (l10n_br_zip_reg.id,
                   l10n_br_zip_reg.zip,
-                  l10n_br_zip_reg.street_type,
+                  street_type,
                   l10n_br_zip_reg.street,
                   l10n_br_zip_reg.district,
                   l10n_br_zip_reg.country_id.id,
