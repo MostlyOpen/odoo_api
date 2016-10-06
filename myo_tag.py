@@ -111,10 +111,11 @@ def tag_export_sqlite(client, args, db_path, table_name):
     cursor.execute('''
         CREATE TABLE ''' + table_name + ''' (
             id INTEGER NOT NULL PRIMARY KEY,
+            parent_id,
             name,
             code,
             description,
-            notes TEXT,
+            notes,
             color,
             new_id INTEGER
             );
@@ -129,22 +130,36 @@ def tag_export_sqlite(client, args, db_path, table_name):
 
         print(tag_count, tag.id, tag.code, tag.name.encode("utf-8"), tag.notes)
 
+        parent_id = None
+        if tag.parent_id:
+            parent_id = tag.parent_id.id
+
+        notes = None
+        if tag.notes:
+            notes = tag.notes
+
+        color = None
+        if tag.color:
+            color = tag.color
+
         cursor.execute('''
                        INSERT INTO ''' + table_name + '''(
                            id,
+                           parent_id,
                            name,
                            code,
                            description,
                            notes,
                            color
                            )
-                       VALUES(?,?,?,?,?,?)''',
+                       VALUES(?,?,?,?,?,?,?)''',
                        (tag.id,
+                        parent_id,
                         tag.name,
                         tag.code,
                         tag.description,
-                        tag.notes,
-                        tag.color
+                        notes,
+                        color
                         )
                        )
 
