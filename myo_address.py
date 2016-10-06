@@ -39,12 +39,16 @@ def address_export_sqlite(client, args, db_path, table_name):
         '''
         CREATE TABLE ''' + table_name + ''' (
             id INTEGER NOT NULL PRIMARY KEY,
-            name,
-            code,
             tag_ids,
+            category_ids,
+            parent_id,
+            name,
+            alias,
+            code,
             zip,
             country_id,
             state_id,
+            city,
             l10n_br_city_id,
             street,
             number,
@@ -52,8 +56,13 @@ def address_export_sqlite(client, args, db_path, table_name):
             district,
             phone,
             mobile,
+            fax,
+            email,
             state,
             notes,
+            is_residence,
+            active,
+            active_log,
             new_id INTEGER
             );
         '''
@@ -68,15 +77,55 @@ def address_export_sqlite(client, args, db_path, table_name):
 
         print(address_count, address_reg.id, address_reg.code, address_reg.name.encode("utf-8"))
 
+        parent_id = None
+        if address_reg.parent_id:
+            parent_id = address_reg.parent_id.id
+
+        alias = None
+        if address_reg.alias:
+            alias = address_reg.alias
+
+        city = None
+        if address_reg.city:
+            city = address_reg.city
+
+        street2 = None
+        if address_reg.street2:
+            street2 = address_reg.street2
+
+        phone = None
+        if address_reg.phone:
+            phone = address_reg.phone
+
+        mobile = None
+        if address_reg.mobile:
+            mobile = address_reg.mobile
+
+        fax = None
+        if address_reg.fax:
+            fax = address_reg.fax
+
+        email = None
+        if address_reg.email:
+            email = address_reg.email
+
+        notes = None
+        if address_reg.notes:
+            notes = address_reg.notes
+
         cursor.execute('''
             INSERT INTO ''' + table_name + '''(
                 id,
-                name,
-                code,
                 tag_ids,
+                category_ids,
+                parent_id,
+                name,
+                alias,
+                code,
                 zip,
                 country_id,
                 state_id,
+                city,
                 l10n_br_city_id,
                 street,
                 number,
@@ -84,26 +133,40 @@ def address_export_sqlite(client, args, db_path, table_name):
                 district,
                 phone,
                 mobile,
+                fax,
+                email,
                 state,
-                notes
+                notes,
+                is_residence,
+                active,
+                active_log
                 )
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ''', (address_reg.id,
-                  address_reg.name,
-                  address_reg.code,
                   str(address_reg.tag_ids.id),
+                  str(address_reg.category_ids.id),
+                  parent_id,
+                  address_reg.name,
+                  alias,
+                  address_reg.code,
                   address_reg.zip,
                   address_reg.country_id.id,
                   address_reg.state_id.id,
+                  city,
                   address_reg.l10n_br_city_id.id,
                   address_reg.street,
                   address_reg.number,
-                  address_reg.street2,
+                  street2,
                   address_reg.district,
-                  address_reg.phone,
-                  address_reg.mobile,
+                  phone,
+                  mobile,
+                  fax,
+                  email,
                   address_reg.state,
-                  address_reg.notes,
+                  notes,
+                  address_reg.is_residence,
+                  address_reg.active,
+                  address_reg.active_log,
                   )
         )
 
