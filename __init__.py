@@ -26,6 +26,7 @@ from myo_address_mng import *
 from myo_employee import *
 from myo_mfile import *
 from myo_person import *
+from myo_person_address import *
 from myo_person_mng import *
 from myo_tag import *
 from res_partner import *
