@@ -89,9 +89,21 @@ def address_export_sqlite(client, args, db_path, table_name):
         if address_reg.city:
             city = address_reg.city
 
+        street = None
+        if address_reg.street:
+            street = address_reg.street
+
+        number = None
+        if address_reg.number:
+            number = address_reg.number
+
         street2 = None
         if address_reg.street2:
             street2 = address_reg.street2
+
+        district = None
+        if address_reg.district:
+            district = address_reg.district
 
         phone = None
         if address_reg.phone:
@@ -154,10 +166,10 @@ def address_export_sqlite(client, args, db_path, table_name):
                   address_reg.state_id.id,
                   city,
                   address_reg.l10n_br_city_id.id,
-                  address_reg.street,
-                  address_reg.number,
+                  street,
+                  number,
                   street2,
-                  address_reg.district,
+                  district,
                   phone,
                   mobile,
                   fax,
