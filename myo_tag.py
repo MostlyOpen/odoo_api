@@ -172,8 +172,11 @@ def tag_export_sqlite(client, args, db_path, table_name):
 
 def tag_import_sqlite(client, args, db_path, table_name):
 
+    tag_model = client.model('myo.tag')
+
     conn = sqlite3.connect(db_path)
-    conn.text_factory = str
+    # conn.text_factory = str
+    conn.row_factory = sqlite3.Row
 
     cursor = conn.cursor()
 
@@ -182,6 +185,7 @@ def tag_import_sqlite(client, args, db_path, table_name):
     data = cursor.execute('''
         SELECT
             id,
+            parent_id,
             name,
             code,
             description,
@@ -191,36 +195,79 @@ def tag_import_sqlite(client, args, db_path, table_name):
         FROM ''' + table_name + ''';
     ''')
 
-    myo_tag = client.model('myo.tag')
-
     print(data)
     print([field[0] for field in cursor.description])
+
     tag_count = 0
     for row in cursor:
         tag_count += 1
 
-        print(tag_count, row[0], row[1], row[2], row[3], row[4], row[5], row[6])
+        print(
+            tag_count, row['id'], row['parent_id'], row['name'], row['code'],
+            row['description'], row['notes'], row['color']
+        )
 
         values = {
-            'name': row[1],
-            'code': row[2],
-            'description': row[3],
-            'notes': row[4],
-            'color': row[5],
+            'name': row['name'],
+            'code': row['code'],
+            'description': row['description'],
+            'notes': row['notes'],
+            'color': row['color'],
         }
-        tag_id = myo_tag.create(values).id
+        tag_id = tag_model.create(values).id
 
-        cursor2.execute('''
-                       UPDATE ''' + table_name + '''
-                       SET new_id = ?
-                       WHERE id = ?;''',
-                        (tag_id,
-                         row[0]
-                         )
-                        )
+        cursor2.execute(
+            '''
+            UPDATE ''' + table_name + '''
+            SET new_id = ?
+            WHERE id = ?;''',
+            (tag_id,
+             row['id']
+             )
+        )
+
+    conn.commit()
+
+    data = cursor.execute('''
+        SELECT
+            id,
+            parent_id,
+            name,
+            code,
+            description,
+            notes,
+            color,
+            new_id
+        FROM ''' + table_name + '''
+        WHERE parent_id IS NOT NULL;
+    ''')
+
+    tag_count_2 = 0
+    for row in cursor:
+        tag_count_2 += 1
+
+        print(tag_count_2, row['id'], row['parent_id'], row['name'], row['code'], row['new_id'])
+
+        cursor2.execute(
+            '''
+            SELECT new_id
+            FROM ''' + table_name + '''
+            WHERE id = ?;''',
+            (row['parent_id'],
+             )
+        )
+        new_parent_id = cursor2.fetchone()[0]
+
+        print('>>>>>', row['id'], row['new_id'], row['parent_id'], new_parent_id)
+
+        values = {
+            'parent_id': new_parent_id,
+        }
+        tag_model.write(row['new_id'], values)
 
     conn.commit()
     conn.close()
 
     print()
     print('--> tag_count: ', tag_count)
+    print('--> tag_count_2: ', tag_count_2)
