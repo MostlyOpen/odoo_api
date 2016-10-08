@@ -97,3 +97,106 @@ def address_category_export_sqlite(client, args, db_path, table_name):
 
     print()
     print('--> address_category_count: ', address_category_count)
+
+
+def address_category_import_sqlite(client, args, db_path, table_name):
+
+    address_category_model = client.model('myo.address.category')
+
+    conn = sqlite3.connect(db_path)
+    # conn.text_factory = str
+    conn.row_factory = sqlite3.Row
+
+    cursor = conn.cursor()
+
+    cursor2 = conn.cursor()
+
+    data = cursor.execute('''
+        SELECT
+            id,
+            parent_id,
+            name,
+            code,
+            description,
+            notes,
+            color,
+            new_id
+        FROM ''' + table_name + ''';
+    ''')
+
+    print(data)
+    print([field[0] for field in cursor.description])
+
+    address_category_count = 0
+    for row in cursor:
+        address_category_count += 1
+
+        print(
+            address_category_count, row['id'], row['parent_id'], row['name'], row['code'],
+            row['description'], row['notes'], row['color']
+        )
+
+        values = {
+            'name': row['name'],
+            'code': row['code'],
+            'description': row['description'],
+            'notes': row['notes'],
+            'color': row['color'],
+        }
+        address_category_id = address_category_model.create(values).id
+
+        cursor2.execute(
+            '''
+            UPDATE ''' + table_name + '''
+            SET new_id = ?
+            WHERE id = ?;''',
+            (address_category_id,
+             row['id']
+             )
+        )
+
+    conn.commit()
+
+    data = cursor.execute('''
+        SELECT
+            id,
+            parent_id,
+            name,
+            code,
+            description,
+            notes,
+            color,
+            new_id
+        FROM ''' + table_name + '''
+        WHERE parent_id IS NOT NULL;
+    ''')
+
+    address_category_count_2 = 0
+    for row in cursor:
+        address_category_count_2 += 1
+
+        print(address_category_count_2, row['id'], row['parent_id'], row['name'], row['code'], row['new_id'])
+
+        cursor2.execute(
+            '''
+            SELECT new_id
+            FROM ''' + table_name + '''
+            WHERE id = ?;''',
+            (row['parent_id'],
+             )
+        )
+        new_parent_id = cursor2.fetchone()[0]
+
+        print('>>>>>', row['id'], row['new_id'], row['parent_id'], new_parent_id)
+
+        values = {
+            'parent_id': new_parent_id,
+        }
+        address_category_model.write(row['new_id'], values)
+
+    conn.commit()
+    conn.close()
+
+    print()
+    print('--> address_category_count: ', address_category_count)
+    print('--> address_category_count_2: ', address_category_count_2)
