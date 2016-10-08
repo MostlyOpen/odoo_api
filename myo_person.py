@@ -189,10 +189,12 @@ def person_export_sqlite(client, args, db_path, table_name):
     print('--> person_count: ', person_count)
 
 
-def person_import_sqlite(client, args, db_path, table_name, tag_table_name):
+def person_import_sqlite(client, args, db_path, table_name, tag_table_name, category_table_name, address_table_name):
+
+    person_model = client.model('myo.person')
 
     conn = sqlite3.connect(db_path)
-    conn.text_factory = str
+    conn.row_factory = sqlite3.Row
 
     cursor = conn.cursor()
 
@@ -200,96 +202,154 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name):
 
     person_count = 0
 
-    try:
-        data = cursor.execute(
+    data = cursor.execute(
+        '''
+        SELECT
+            id,
+            tag_ids,
+            category_ids,
+            name,
+            alias,
+            code,
+            gender,
+            marital,
+            birthday,
+            spouse_id,
+            father_id,
+            mother_id,
+            responsible_id,
+            identification_id,
+            otherid,
+            rg,
+            cpf,
+            country_id,
+            date_inclusion,
+            state,
+            notes,
+            address_id,
+            is_patient,
+            active,
+            active_log,
+            new_id
+        FROM ''' + table_name + ''';
+        '''
+    )
+
+    print(data)
+    print([field[0] for field in cursor.description])
+    for row in cursor:
+        person_count += 1
+
+        print(person_count, row['id'], row['name'], row['code'], row['tag_ids'], row['category_ids'])
+
+        values = {
+            # 'tag_ids': row['tag_ids'],
+            # 'category_ids': row['category_ids'],
+            'name': row['name'],
+            'alias': row['alias'],
+            'code': row['code'],
+            'gender': row['gender'],
+            'marital': row['marital'],
+            'birthday': row['birthday'],
+            'spouse_id': row['spouse_id'],
+            'father_id': row['father_id'],
+            'mother_id': row['mother_id'],
+            'responsible_id': row['responsible_id'],
+            'identification_id': row['identification_id'],
+            'otherid': row['otherid'],
+            'rg': row['rg'],
+            'cpf': row['cpf'],
+            'country_id': row['country_id'],
+            'date_inclusion': row['date_inclusion'],
+            'state': row['state'],
+            'notes': row['notes'],
+            # 'address_id': row['address_id'],
+            'is_patient': row['is_patient'],
+            'active': row['active'],
+            'active_log': row['active_log'],
+        }
+        person_id = person_model.create(values).id
+
+        cursor2.execute(
             '''
-            SELECT
-                id,
-                name,
-                code,
-                tag_ids,
-                zip,
-                country_id,
-                state_id,
-                l10n_br_city_id,
-                street,
-                number,
-                street2,
-                district,
-                phone,
-                mobile,
-                state,
-                notes,
-                new_id
-            FROM ''' + table_name + ''';
-            '''
+           UPDATE ''' + table_name + '''
+           SET new_id = ?
+           WHERE id = ?;''',
+            (person_id,
+             row['id']
+             )
         )
 
-        person_model = client.model('myo.person')
+        if row['tag_ids'] != '[]':
 
-        print(data)
-        print([field[0] for field in cursor.description])
-        for row in cursor:
-            person_count += 1
+            tag_ids = row['tag_ids'].split(',')
+            new_tag_ids = []
+            for x in range(0, len(tag_ids)):
+                tag_id = int(re.sub('[^0-9]', '', tag_ids[x]))
+                cursor2.execute(
+                    '''
+                    SELECT new_id
+                    FROM ''' + tag_table_name + '''
+                    WHERE id = ?;''',
+                    (tag_id,
+                     )
+                )
+                new_tag_id = cursor2.fetchone()[0]
 
-            print(person_count, row[0], row[1], row[2], row[3])
+                values = {
+                    'tag_ids': [(4, new_tag_id)],
+                }
+                person_model.write(person_id, values)
 
-            values = {
-                'name': row[1],
-                'code': row[2],
-                # 'tag_ids': row[3],
-                'zip': row[4],
-                'country_id': row[5],
-                'state_id': row[6],
-                'l10n_br_city_id': row[7],
-                'street': row[8],
-                'number': row[9],
-                'street2': row[10],
-                'district': row[11],
-                'phone': row[12],
-                'mobile': row[13],
-                'state': row[14],
-                'notes': row[15],
-            }
-            person_id = person_model.create(values).id
+                new_tag_ids.append(new_tag_id)
+
+            print('>>>>>', row[4], new_tag_ids)
+
+        if row['category_ids'] != '[]':
+
+            category_ids = row['category_ids'].split(',')
+            new_category_ids = []
+            for x in range(0, len(category_ids)):
+                category_id = int(re.sub('[^0-9]', '', category_ids[x]))
+                cursor2.execute(
+                    '''
+                    SELECT new_id
+                    FROM ''' + category_table_name + '''
+                    WHERE id = ?;''',
+                    (category_id,
+                     )
+                )
+                new_category_id = cursor2.fetchone()[0]
+
+                values = {
+                    'category_ids': [(4, new_category_id)],
+                }
+                person_model.write(person_id, values)
+
+                new_category_ids.append(new_category_id)
+
+            print('>>>>>', row['category_ids'], new_category_ids)
+
+        if row['address_id']:
+
+            address_id = row['address_id']
 
             cursor2.execute(
                 '''
-               UPDATE ''' + table_name + '''
-               SET new_id = ?
-               WHERE id = ?;''',
-                (person_id,
-                 row[0]
+                SELECT new_id
+                FROM ''' + address_table_name + '''
+                WHERE id = ?;''',
+                (address_id,
                  )
             )
+            address_id = cursor2.fetchone()[0]
 
-            if row[3] != '[]':
+            values = {
+                'address_id': address_id,
+            }
+            person_model.write(person_id, values)
 
-                tag_ids = row[3].split(',')
-                new_tag_ids = []
-                for x in range(0, len(tag_ids)):
-                    tag_id = int(re.sub('[^0-9]', '', tag_ids[x]))
-                    cursor2.execute(
-                        '''
-                        SELECT new_id
-                        FROM ''' + tag_table_name + '''
-                        WHERE id = ?;''',
-                        (tag_id,
-                         )
-                    )
-                    new_tag_id = cursor2.fetchone()[0]
-
-                    values = {
-                        'tag_ids': [(4, new_tag_id)],
-                    }
-                    person_model.write(person_id, values)
-
-                    new_tag_ids.append(new_tag_id)
-
-                print('>>>>>', row[4], new_tag_ids)
-
-    except Exception as e:
-        print('>>>>>', e)
+            print('>>>>>', row['address_id'], address_id)
 
     conn.commit()
     conn.close()
