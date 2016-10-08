@@ -251,10 +251,10 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             'gender': row['gender'],
             'marital': row['marital'],
             'birthday': row['birthday'],
-            'spouse_id': row['spouse_id'],
-            'father_id': row['father_id'],
-            'mother_id': row['mother_id'],
-            'responsible_id': row['responsible_id'],
+            # 'spouse_id': row['spouse_id'],
+            # 'father_id': row['father_id'],
+            # 'mother_id': row['mother_id'],
+            # 'responsible_id': row['responsible_id'],
             'identification_id': row['identification_id'],
             'otherid': row['otherid'],
             'rg': row['rg'],
@@ -352,7 +352,236 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             print('>>>>>', row['address_id'], address_id)
 
     conn.commit()
+
+    data = cursor.execute('''
+        SELECT
+            id,
+            tag_ids,
+            category_ids,
+            name,
+            alias,
+            code,
+            gender,
+            marital,
+            birthday,
+            spouse_id,
+            father_id,
+            mother_id,
+            responsible_id,
+            identification_id,
+            otherid,
+            rg,
+            cpf,
+            country_id,
+            date_inclusion,
+            state,
+            notes,
+            address_id,
+            is_patient,
+            active,
+            active_log,
+            new_id
+        FROM ''' + table_name + '''
+        WHERE spouse_id IS NOT NULL;
+    ''')
+
+    person_count_2 = 0
+    for row in cursor:
+        person_count_2 += 1
+
+        print(person_count_2, row['id'], row['name'], row['code'], row['spouse_id'])
+
+        cursor2.execute(
+            '''
+            SELECT new_id
+            FROM ''' + table_name + '''
+            WHERE id = ?;''',
+            (row['spouse_id'],
+             )
+        )
+        new_spouse_id = cursor2.fetchone()[0]
+
+        print('>>>>>', row['id'], row['new_id'], row['spouse_id'], new_spouse_id)
+
+        values = {
+            'spouse_id': new_spouse_id,
+        }
+        person_model.write(row['new_id'], values)
+
+    conn.commit()
+
+    data = cursor.execute('''
+        SELECT
+            id,
+            tag_ids,
+            category_ids,
+            name,
+            alias,
+            code,
+            gender,
+            marital,
+            birthday,
+            spouse_id,
+            father_id,
+            mother_id,
+            responsible_id,
+            identification_id,
+            otherid,
+            rg,
+            cpf,
+            country_id,
+            date_inclusion,
+            state,
+            notes,
+            address_id,
+            is_patient,
+            active,
+            active_log,
+            new_id
+        FROM ''' + table_name + '''
+        WHERE father_id IS NOT NULL;
+    ''')
+
+    person_count_3 = 0
+    for row in cursor:
+        person_count_3 += 1
+
+        print(person_count_3, row['id'], row['name'], row['code'], row['father_id'])
+
+        cursor2.execute(
+            '''
+            SELECT new_id
+            FROM ''' + table_name + '''
+            WHERE id = ?;''',
+            (row['father_id'],
+             )
+        )
+        new_father_id = cursor2.fetchone()[0]
+
+        print('>>>>>', row['id'], row['new_id'], row['father_id'], new_father_id)
+
+        values = {
+            'father_id': new_father_id,
+        }
+        person_model.write(row['new_id'], values)
+
+    conn.commit()
+
+    data = cursor.execute('''
+        SELECT
+            id,
+            tag_ids,
+            category_ids,
+            name,
+            alias,
+            code,
+            gender,
+            marital,
+            birthday,
+            spouse_id,
+            father_id,
+            mother_id,
+            responsible_id,
+            identification_id,
+            otherid,
+            rg,
+            cpf,
+            country_id,
+            date_inclusion,
+            state,
+            notes,
+            address_id,
+            is_patient,
+            active,
+            active_log,
+            new_id
+        FROM ''' + table_name + '''
+        WHERE mother_id IS NOT NULL;
+    ''')
+
+    person_count_4 = 0
+    for row in cursor:
+        person_count_4 += 1
+
+        print(person_count_4, row['id'], row['name'], row['code'], row['mother_id'])
+
+        cursor2.execute(
+            '''
+            SELECT new_id
+            FROM ''' + table_name + '''
+            WHERE id = ?;''',
+            (row['mother_id'],
+             )
+        )
+        new_mother_id = cursor2.fetchone()[0]
+
+        print('>>>>>', row['id'], row['new_id'], row['mother_id'], new_mother_id)
+
+        values = {
+            'mother_id': new_mother_id,
+        }
+        person_model.write(row['new_id'], values)
+
+    conn.commit()
+
+    data = cursor.execute('''
+        SELECT
+            id,
+            tag_ids,
+            category_ids,
+            name,
+            alias,
+            code,
+            gender,
+            marital,
+            birthday,
+            spouse_id,
+            father_id,
+            mother_id,
+            responsible_id,
+            identification_id,
+            otherid,
+            rg,
+            cpf,
+            country_id,
+            date_inclusion,
+            state,
+            notes,
+            address_id,
+            is_patient,
+            active,
+            active_log,
+            new_id
+        FROM ''' + table_name + '''
+        WHERE responsible_id IS NOT NULL;
+    ''')
+
+    person_count_5 = 0
+    for row in cursor:
+        person_count_5 += 1
+
+        print(person_count_5, row['id'], row['name'], row['code'], row['responsible_id'])
+
+        cursor2.execute(
+            '''
+            SELECT new_id
+            FROM ''' + table_name + '''
+            WHERE id = ?;''',
+            (row['responsible_id'],
+             )
+        )
+        new_responsible_id = cursor2.fetchone()[0]
+
+        print('>>>>>', row['id'], row['new_id'], row['responsible_id'], new_responsible_id)
+
+        values = {
+            'responsible_id': new_responsible_id,
+        }
+        person_model.write(row['new_id'], values)
+
+    conn.commit()
     conn.close()
 
     print()
     print('--> person_count: ', person_count)
+    print('--> person_count_2: ', person_count_2)
