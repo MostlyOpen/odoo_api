@@ -91,3 +91,62 @@ def person_address_role_export_sqlite(client, args, db_path, table_name):
 
     print()
     print('--> person_address_role_count: ', person_address_role_count)
+
+
+def person_address_role_import_sqlite(client, args, db_path, table_name):
+
+    person_address_role_model = client.model('myo.person.address.role')
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+
+    cursor = conn.cursor()
+
+    cursor2 = conn.cursor()
+
+    data = cursor.execute('''
+        SELECT
+            id,
+            name,
+            code,
+            description,
+            notes,
+            new_id
+        FROM ''' + table_name + ''';
+    ''')
+
+    print(data)
+    print([field[0] for field in cursor.description])
+
+    person_address_role_count = 0
+    for row in cursor:
+        person_address_role_count += 1
+
+        print(
+            person_address_role_count, row['id'], row['name'], row['code'],
+            row['description'], row['notes'],
+        )
+
+        values = {
+            'name': row['name'],
+            'code': row['code'],
+            'description': row['description'],
+            'notes': row['notes'],
+        }
+        person_address_role_id = person_address_role_model.create(values).id
+
+        cursor2.execute(
+            '''
+            UPDATE ''' + table_name + '''
+            SET new_id = ?
+            WHERE id = ?;''',
+            (person_address_role_id,
+             row['id']
+             )
+        )
+
+    conn.commit()
+    conn.close()
+
+    print()
+    print('--> person_address_role_count: ', person_address_role_count)
