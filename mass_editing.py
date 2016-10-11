@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ###############################################################################
 #
@@ -19,18 +19,32 @@
 #
 ###############################################################################
 
-from l10n_br_zip import *
-from mass_editing import *
-from myo_address import *
-from myo_address_category import *
-from myo_address_mng import *
-from myo_employee import *
-from myo_mfile import *
-from myo_person import *
-from myo_person_address import *
-from myo_person_category import *
-from myo_person_address_role import *
-from myo_person_mng import *
-from myo_tag import *
-from res_partner import *
-from res_users import *
+from __future__ import print_function
+
+
+def mass_editing_create(client, name, model, fields):
+
+    mass_object_model = client.model('mass.object')
+
+    ir_model = client.model('ir.model')
+    ir_model_fields = client.model('ir.model.fields')
+    
+    object_model = ir_model.search([('model', '=', model)])
+    fields_model = ir_model_fields.search([
+        ('model_id', '=', object_model[0]),
+        ('name', 'in', fields)
+        ])
+
+    values = {
+        'name': name,
+        'model_id': object_model[0],
+        'field_ids': [(6, 0, fields_model)]
+    }
+    mass_object_new = mass_object_model.create(values)
+    mass_object_new.create_action()
+
+    print()
+    print('-->', object_model)
+    print('-->', fields_model)
+    print('-->', mass_object_new.name)
+    print()
