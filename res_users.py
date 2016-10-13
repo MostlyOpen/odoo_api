@@ -103,6 +103,7 @@ def res_users_export_sqlite(client, args, db_path, table_name, conn_string):
         CREATE TABLE ''' + table_name + ''' (
             id INTEGER NOT NULL PRIMARY KEY,
             name,
+            partner_id,
             login,
             password_crypt,
             new_id INTEGER
@@ -134,12 +135,14 @@ def res_users_export_sqlite(client, args, db_path, table_name, conn_string):
             INSERT INTO ''' + table_name + '''(
                 id,
                 name,
+                partner_id,
                 login,
                 password_crypt
                 )
-            VALUES(?,?,?,?)
+            VALUES(?,?,?,?,?)
             ''', (res_users_reg.id,
                   res_users_reg.name,
+                  res_users_reg.partner_id.id,
                   res_users_reg.login,
                   row[1],
                   )
