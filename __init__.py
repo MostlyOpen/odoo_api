@@ -24,6 +24,7 @@ from mass_editing import *
 from myo_address import *
 from myo_address_category import *
 from myo_address_mng import *
+from myo_community import *
 from myo_employee import *
 from myo_mfile import *
 from myo_person import *
