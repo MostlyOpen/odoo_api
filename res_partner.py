@@ -39,6 +39,7 @@ def res_partner_export_sqlite(client, args, db_path, table_name):
         CREATE TABLE ''' + table_name + ''' (
             id INTEGER NOT NULL PRIMARY KEY,
             name,
+            email,
             new_id INTEGER
             );
         '''
@@ -56,11 +57,13 @@ def res_partner_export_sqlite(client, args, db_path, table_name):
         cursor.execute('''
             INSERT INTO ''' + table_name + '''(
                 id,
-                name
+                name,
+                email
                 )
-            VALUES(?,?)
+            VALUES(?,?,?)
             ''', (res_partner_reg.id,
                   res_partner_reg.name,
+                  res_partner_reg.email,
                   )
         )
 
