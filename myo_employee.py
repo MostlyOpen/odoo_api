@@ -24,6 +24,19 @@ from __future__ import print_function
 import sqlite3
 
 
+def hr_department_create(client, department_name):
+
+    hr_department_model = client.model('hr.department')
+
+    hr_department_browse = hr_department_model.browse([('name', '=', department_name), ])
+    if hr_department_browse.id == []:
+
+        values = {
+            'name': department_name,
+        }
+        hr_department_model.create(values)
+
+
 def employee_create_from_user(client, user_login, job_title, department_name):
 
     print('Configuring employee "' + user_login + '"...')
