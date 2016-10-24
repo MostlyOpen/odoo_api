@@ -29,6 +29,7 @@ from myo_employee import *
 from myo_event import *
 from myo_event_category import *
 from myo_event_participant_role import *
+from myo_event_person import *
 from myo_mfile import *
 from myo_person import *
 from myo_person_address import *
