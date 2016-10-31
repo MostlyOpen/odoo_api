@@ -19,6 +19,7 @@
 #
 ###############################################################################
 
+from ir_sequence import *
 from l10n_br_zip import *
 from mass_editing import *
 from myo_address import *
