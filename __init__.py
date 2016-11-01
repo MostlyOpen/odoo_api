@@ -29,6 +29,7 @@ from myo_community import *
 from myo_community_category import *
 from myo_community_employee import *
 from myo_community_member_role import *
+from myo_community_person import *
 from myo_employee import *
 from myo_event import *
 from myo_event_category import *
