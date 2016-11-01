@@ -26,6 +26,7 @@ from myo_address import *
 from myo_address_category import *
 from myo_address_mng import *
 from myo_community import *
+from myo_community_address import *
 from myo_community_category import *
 from myo_community_employee import *
 from myo_community_member_role import *
