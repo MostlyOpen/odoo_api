@@ -67,6 +67,7 @@ def person_mng_create_person(client, batch_name, state):
             # 'code': '/',
             'gender': person_mng_reg.gender,
             'birthday': person_mng_reg.birthday,
+            'estimated_age': person_mng_reg.estimated_age,
             'tag_ids': tag_ids,
             "address_id": person_mng_reg.address_id.id,
         }
