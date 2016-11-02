@@ -47,6 +47,7 @@ def person_export_sqlite(client, args, db_path, table_name):
             gender,
             marital,
             birthday,
+            estimated_age,
             spouse_id,
             father_id,
             mother_id,
@@ -80,6 +81,14 @@ def person_export_sqlite(client, args, db_path, table_name):
         alias = None
         if person_reg.alias:
             alias = person_reg.alias
+
+        birthday = None
+        if person_reg.birthday:
+            birthday = person_reg.birthday
+
+        estimated_age = None
+        if person_reg.estimated_age:
+            estimated_age = person_reg.estimated_age
 
         marital = None
         if person_reg.marital:
@@ -136,6 +145,7 @@ def person_export_sqlite(client, args, db_path, table_name):
                 gender,
                 marital,
                 birthday,
+                estimated_age,
                 spouse_id,
                 father_id,
                 mother_id,
@@ -153,7 +163,7 @@ def person_export_sqlite(client, args, db_path, table_name):
                 active,
                 active_log
                 )
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ''', (person_reg.id,
                   str(person_reg.tag_ids.id),
                   str(person_reg.category_ids.id),
@@ -162,7 +172,8 @@ def person_export_sqlite(client, args, db_path, table_name):
                   person_reg.code,
                   person_reg.gender,
                   marital,
-                  person_reg.birthday,
+                  birthday,
+                  estimated_age,
                   spouse_id,
                   father_id,
                   mother_id,
@@ -214,6 +225,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             gender,
             marital,
             birthday,
+            estimated_age,
             spouse_id,
             father_id,
             mother_id,
@@ -251,6 +263,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             'gender': row['gender'],
             'marital': row['marital'],
             'birthday': row['birthday'],
+            'estimated_age': row['estimated_age'],
             # 'spouse_id': row['spouse_id'],
             # 'father_id': row['father_id'],
             # 'mother_id': row['mother_id'],
@@ -364,6 +377,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             gender,
             marital,
             birthday,
+            estimated_age,
             spouse_id,
             father_id,
             mother_id,
@@ -421,6 +435,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             gender,
             marital,
             birthday,
+            estimated_age,
             spouse_id,
             father_id,
             mother_id,
@@ -478,6 +493,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             gender,
             marital,
             birthday,
+            estimated_age,
             spouse_id,
             father_id,
             mother_id,
@@ -535,6 +551,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             gender,
             marital,
             birthday,
+            estimated_age,
             spouse_id,
             father_id,
             mother_id,
