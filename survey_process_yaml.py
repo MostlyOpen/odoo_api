@@ -312,7 +312,7 @@ def survey_page(doc, yaml_out_file, xml_file, txt_file, key1, key2, survey_id, p
     yaml_out_file.write('\n')
 
     _title_ = '[' + _id_ + '] ' + _title_
-    _description_ = '[' + _id_ + '] ' + _description_
+    # _description_ = '[' + _id_ + '] ' + _description_
 
     txt_file.write('    %s\n' % (_title_))
 
@@ -362,7 +362,7 @@ def survey(doc, yaml_out_file, xml_file, txt_file, key1):
     yaml_out_file.write('\n')
 
     _title_ = '[' + _id_ + '] ' + _title_
-    _description_ = '[' + _id_ + '] ' + _description_
+    # _description_ = '[' + _id_ + '] ' + _description_
 
     txt_file.write('%s\n' % (_title_))
 
