@@ -37,6 +37,7 @@ def survey_label_matrix(
     global first_matrix_col_row_nr
     global matrix_col_nrs
     global matrix_row_nrs
+    global style_choice
 
     _value_ = doc[key1][key2][key3][key4]['value'].encode("utf-8")
     _model_ = doc[key1][key2][key3][key4]['model']
@@ -79,17 +80,11 @@ def survey_label_matrix(
         row.write(matrix_col_nr, _value_.decode("utf-8"))
         # matrix_col_nr += 2
         for matrix_row_nr in matrix_row_nrs:
+            style_dot = xlwt.easyxf('align: vertical center, horizontal right;')
             row = sheet.row(matrix_row_nr)
-            row.write(matrix_col_nr, '.')
+            row.write(matrix_col_nr, '.', style=style_dot)
 
-            style = xlwt.XFStyle()
-            borders = xlwt.Borders()
-            borders.left = xlwt.Borders.THIN
-            borders.right = xlwt.Borders.THIN
-            borders.top = xlwt.Borders.THIN
-            borders.bottom = xlwt.Borders.THIN
-            style.borders = borders
-            row.write(matrix_col_nr + 1, None, style=style)
+            row.write(matrix_col_nr + 1, None, style=style_choice)
 
         matrix_col_nr += 3
 
@@ -108,11 +103,13 @@ def survey_label_matrix(
 
 
 def survey_label(
-    doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, question_type, question_id, label_sequence
+    doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, question_type, question_id, question_nr,
+    label_sequence
 ):
 
     global sheet
     global row_nr
+    global style_choice
 
     _value_ = doc[key1][key2][key3][key4]['value'].encode("utf-8")
     _model_ = doc[key1][key2][key3][key4]['model']
@@ -131,18 +128,12 @@ def survey_label(
 
     txt_file.write('            %s\n' % (_value_))
 
+    style_dot = xlwt.easyxf('align: vertical center, horizontal right;')
     row = sheet.row(row_nr)
     row.write(0, '[' + key4 + ']')
-    row.write(4, '.')
+    row.write(4, '.', style=style_dot)
 
-    style = xlwt.XFStyle()
-    borders = xlwt.Borders()
-    borders.left = xlwt.Borders.THIN
-    borders.right = xlwt.Borders.THIN
-    borders.top = xlwt.Borders.THIN
-    borders.bottom = xlwt.Borders.THIN
-    style.borders = borders
-    row.write(5, None, style=style)
+    row.write(5, None, style=style_choice)
 
     row.write(6, _value_.decode("utf-8"))
     row_nr += 1
@@ -166,6 +157,7 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
     global matrix_col_nr
     global matrix_col_nrs
     global matrix_row_nrs
+    global style_choice
 
     _page_id_ = page_id
     if question_sequence < 100:
@@ -205,6 +197,7 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
         else:
             txt_file.write('            ' + '____________________________________\n')
 
+        style_dot = xlwt.easyxf('align: vertical center, horizontal right;')
         row = sheet.row(row_nr)
         row.write(0, '[' + key3 + ']')
         row.write(4, _question_.decode("utf-8"))
@@ -212,38 +205,49 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
         row = sheet.row(row_nr)
         row.write(0, '[' + key3 + ']')
         row.write(4, _type_.decode("utf-8"))
+        row.hidden = True
         row_nr += 2
         if _type_ == 'free_text':
+            style_b_unlocked = xlwt.easyxf('border: bottom THIN; protection: cell_locked false; font: bold on;')
+            style_b = xlwt.easyxf('border: bottom THIN;')
             row = sheet.row(row_nr)
             row.write(0, '[' + key3 + ']')
-            row.write(4, '.')
+            row.write(4, '.', style=style_dot)
+            row.write(5, None, style=style_b_unlocked)
+            for i in range(6, 15):
+                row.write(i, None, style=style_b)
             row_nr += 1
             row = sheet.row(row_nr)
             row.write(0, '[' + key3 + ']')
-            row.write(4, '.')
+            row.write(4, '.', style=style_dot)
+            row.write(5, None, style=style_b_unlocked)
+            for i in range(6, 15):
+                row.write(i, None, style=style_b)
             row_nr += 1
             row = sheet.row(row_nr)
             row.write(0, '[' + key3 + ']')
-            row.write(4, '.')
+            row.write(4, '.', style=style_dot)
+            row.write(5, None, style=style_b_unlocked)
+            for i in range(6, 15):
+                row.write(i, None, style=style_b)
             row_nr += 1
             row = sheet.row(row_nr)
             row.write(0, '[' + key3 + ']')
-            row.write(4, '.')
+            row.write(4, '.', style=style_dot)
+            row.write(5, None, style=style_b_unlocked)
+            for i in range(6, 15):
+                row.write(i, None, style=style_b)
             row_nr += 1
         else:
             row = sheet.row(row_nr)
             row.write(0, '[' + key3 + ']')
-            row.write(4, '.')
+            row.write(4, '.', style=style_dot)
 
-            style = xlwt.XFStyle()
-            borders = xlwt.Borders()
-            borders.bottom = xlwt.Borders.THIN
-            style.borders = borders
-            row.write(5, None, style=style)
-            row.write(6, None, style=style)
-            row.write(7, None, style=style)
-            row.write(8, None, style=style)
-            row.write(9, None, style=style)
+            style_b_unlocked = xlwt.easyxf('border: bottom THIN; protection: cell_locked false; font: bold on;')
+            style_b = xlwt.easyxf('border: bottom THIN;')
+            row.write(5, None, style=style_b_unlocked)
+            for i in range(6, 15):
+                row.write(i, None, style=style_b)
 
             row_nr += 1
         row_nr += 1
@@ -284,6 +288,14 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
         txt_file.write('        %s\n' % (_question_))
         txt_file.write('            (%s)\n' % (_type_))
 
+        style_string = '''
+            font: bold on;
+            borders: left THIN, right THIN, top THIN, bottom THIN;
+            align: vertical center, horizontal center;
+            protection: cell_locked false;
+        '''
+        style_choice = xlwt.easyxf(style_string)
+
         row = sheet.row(row_nr)
         row.write(0, '[' + key3 + ']')
         row.write(4, _question_.decode("utf-8"))
@@ -291,6 +303,7 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
         row = sheet.row(row_nr)
         row.write(0, '[' + key3 + ']')
         row.write(4, _type_.decode("utf-8"))
+        row.hidden = True
         row_nr += 2
 
         xml_file.write('                <!-- %s -->\n' % (_question_))
@@ -316,7 +329,8 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
                 if _model_ == 'survey.label':
                     label_sequence += 10
                     survey_label(
-                        doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, _type_, _id_, label_sequence
+                        doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, _type_, _id_, _nr_,
+                        label_sequence
                     )
             except Exception, e:
                 print('>>>>>', e.message, e.args)
@@ -328,20 +342,17 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
             row = sheet.row(row_nr)
             row.write(0, '[' + key3 + ']')
             row.write(6, _comments_message_.decode("utf-8"))
-            row_nr += 1
+            row_nr += 2
             row = sheet.row(row_nr)
             row.write(0, '[' + key3 + ']')
-            row.write(6, '.')
+            style_dot = xlwt.easyxf('align: vertical center, horizontal right;')
+            row.write(6, '.', style=style_dot)
 
-            style = xlwt.XFStyle()
-            borders = xlwt.Borders()
-            borders.bottom = xlwt.Borders.THIN
-            style.borders = borders
-            row.write(7, None, style=style)
-            row.write(8, None, style=style)
-            row.write(9, None, style=style)
-            row.write(10, None, style=style)
-            row.write(11, None, style=style)
+            style_b_unlocked = xlwt.easyxf('border: bottom THIN; protection: cell_locked false; font: bold on;')
+            style_b = xlwt.easyxf('border: bottom THIN;')
+            row.write(7, None, style=style_b_unlocked)
+            for i in range(8, 17):
+                row.write(i, None, style=style_b)
 
             row_nr += 2
         else:
@@ -370,6 +381,14 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
         txt_file.write('        %s\n' % (_question_))
         txt_file.write('            (%s)\n' % (_type_))
 
+        style_string = '''
+            font: bold on;
+            borders: left DOTTED, right DOTTED, top DOTTED, bottom DOTTED;
+            align: vertical center, horizontal center;
+            protection: cell_locked false;
+        '''
+        style_choice = xlwt.easyxf(style_string)
+
         row = sheet.row(row_nr)
         row.write(0, '[' + key3 + ']')
         row.write(4, _question_.decode("utf-8"))
@@ -377,6 +396,7 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
         row = sheet.row(row_nr)
         row.write(0, '[' + key3 + ']')
         row.write(4, _type_.decode("utf-8"))
+        row.hidden = True
         row_nr += 2
 
         xml_file.write('                <!-- %s -->\n' % (_question_))
@@ -401,7 +421,8 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
                 if _model_ == 'survey.label':
                     label_sequence += 10
                     survey_label(
-                        doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, _type_, _id_, label_sequence
+                        doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, _type_, _id_, _nr_,
+                        label_sequence
                     )
             except Exception, e:
                 print('>>>>>', e.message, e.args)
@@ -413,20 +434,17 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
             row = sheet.row(row_nr)
             row.write(0, '[' + key3 + ']')
             row.write(6, _comments_message_.decode("utf-8"))
-            row_nr += 1
+            row_nr += 2
             row = sheet.row(row_nr)
             row.write(0, '[' + key3 + ']')
-            row.write(6, '.')
+            style_dot = xlwt.easyxf('align: vertical center, horizontal right;')
+            row.write(6, '.', style=style_dot)
 
-            style = xlwt.XFStyle()
-            borders = xlwt.Borders()
-            borders.bottom = xlwt.Borders.THIN
-            style.borders = borders
-            row.write(7, None, style=style)
-            row.write(8, None, style=style)
-            row.write(9, None, style=style)
-            row.write(10, None, style=style)
-            row.write(11, None, style=style)
+            style_b_unlocked = xlwt.easyxf('border: bottom THIN; protection: cell_locked false; font: bold on;')
+            style_b = xlwt.easyxf('border: bottom THIN;')
+            row.write(7, None, style=style_b_unlocked)
+            for i in range(8, 17):
+                row.write(i, None, style=style_b)
 
             row_nr += 2
         else:
@@ -458,6 +476,7 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
         row = sheet.row(row_nr)
         row.write(0, '[' + key3 + ']')
         row.write(4, _type_ + '_' + _matrix_subtype_)
+        row.hidden = True
         row_nr += 1
 
         xml_file.write('                <!-- %s -->\n' % (_question_))
@@ -478,6 +497,18 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
         matrix_col_nrs = []
         matrix_row_nrs = []
         row_nr += 3
+
+        style_string = '''
+            font: bold on;
+            borders: left THIN, right THIN, top THIN, bottom THIN;
+            align: vertical center, horizontal center;
+            protection: cell_locked false;
+        '''
+        style_choice = xlwt.easyxf(style_string)
+
+        row_matrix_col = sheet.row(matrix_col_row_nr)
+        row_matrix_col.write(0, '[]')
+        sheet.row(matrix_col_row_nr).hidden = True
 
         label_sequence = 0
         for key4 in sorted(doc[key1][key2][key3].keys()):
@@ -652,6 +683,14 @@ def survey_process_yaml(yaml_filename, yaml_out_filename, xml_filename, txt_file
             row_nr += 1
 
             survey(doc, yaml_out_file, xml_file, txt_file, key1)
+
+            sheet.col(0).hidden = True
+
+            for i in range(100):
+                sheet.col(i).width = 256 * 2
+
+            sheet.protect = True
+            sheet.password = "OpenSesame"
 
             book.save(xls_filename)
 
