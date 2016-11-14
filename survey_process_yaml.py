@@ -613,7 +613,10 @@ def survey(doc, yaml_out_file, xml_file, txt_file, key1):
     yaml_out_file.write('    thank_you_message: \'%s\'\n' % (_thank_you_message_))
     yaml_out_file.write('\n')
 
-    _title_ = '[' + _id_ + '] ' + _title_
+    if _title_ == '':
+        _title_ = '[' + _id_ + ']'
+    else:
+        _title_ = '[' + _id_ + '] ' + _title_
     # _description_ = '[' + _id_ + '] ' + _description_
 
     txt_file.write('%s\n' % (_title_))
