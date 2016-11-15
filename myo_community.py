@@ -44,18 +44,21 @@ def community_create_community(client, community_name, responsible_name, departm
     community_id = community_model.create(values).id
 
     hr_department_browse = hr_department_model.browse([('name', '=', department_name), ])
-    department_id = hr_department_browse.id[0]
+    department_id = False
+    if hr_department_browse.id != []:
 
-    hr_employee_browse = hr_employee_model.browse([('department_id', '=', department_id), ])
-    for hr_employee in hr_employee_browse:
-        print('>>>>>', hr_employee.name.encode("utf-8"))
+        department_id = hr_department_browse.id[0]
 
-        values = {
-            'community_id': community_id,
-            'employee_id': hr_employee.id,
-            # 'role': role,
-        }
-        community_employee_model.create(values)
+        hr_employee_browse = hr_employee_model.browse([('department_id', '=', department_id), ])
+        for hr_employee in hr_employee_browse:
+            print('>>>>>', hr_employee.name.encode("utf-8"))
+
+            values = {
+                'community_id': community_id,
+                'employee_id': hr_employee.id,
+                # 'role': role,
+            }
+            community_employee_model.create(values)
 
     print()
     print('--> Done')
