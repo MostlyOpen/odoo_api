@@ -23,6 +23,7 @@ from __future__ import print_function
 
 import sqlite3
 import psycopg2
+import re
 
 
 def res_users_create_user(client, company_name, lang, tz, user_name, user_email, user_pw, user_image):
@@ -42,8 +43,8 @@ def res_users_create_user(client, company_name, lang, tz, user_name, user_email,
 
         args = [('name', '=', company_name), ]
 
-        res_partner_browse = res_partner_model.browse(args)
-        parent_id = res_partner_browse[0].id
+        res_users_browse = res_users_model.browse(args)
+        parent_id = res_users_browse[0].id
 
         res_company_browse = res_company_model.browse(args)
         company_id = res_company_browse[0].id
@@ -104,8 +105,11 @@ def res_users_export_sqlite(client, args, db_path, table_name, conn_string):
             id INTEGER NOT NULL PRIMARY KEY,
             name,
             partner_id,
+            company_id,
             login,
             password_crypt,
+            image,
+            groups_id,
             new_id INTEGER
             );
         '''
@@ -136,15 +140,21 @@ def res_users_export_sqlite(client, args, db_path, table_name, conn_string):
                 id,
                 name,
                 partner_id,
+                company_id,
                 login,
-                password_crypt
+                password_crypt,
+                image,
+                groups_id
                 )
-            VALUES(?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?)
             ''', (res_users_reg.id,
                   res_users_reg.name,
                   res_users_reg.partner_id.id,
+                  res_users_reg.company_id.id,
                   res_users_reg.login,
                   row[1],
+                  res_users_reg.image,
+                  str(res_users_reg.groups_id.id),
                   )
         )
 
@@ -154,3 +164,96 @@ def res_users_export_sqlite(client, args, db_path, table_name, conn_string):
     print()
     print('--> res_users_count: ', res_users_count)
     print()
+
+
+def res_users_import_sqlite(client, args, db_path, table_name):
+
+    res_users_model = client.model('res.users')
+
+    conn = sqlite3.connect(db_path)
+    # conn.text_factory = str
+    conn.row_factory = sqlite3.Row
+
+    cursor = conn.cursor()
+
+    cursor2 = conn.cursor()
+
+    data = cursor.execute('''
+        SELECT
+            id,
+            name,
+            partner_id,
+            company_id,
+            login,
+            password_crypt,
+            image,
+            groups_id,
+            new_id
+        FROM ''' + table_name + ''';
+    ''')
+
+    print(data)
+    print([field[0] for field in cursor.description])
+
+    res_users_count = 0
+    for row in cursor:
+        res_users_count += 1
+
+        print(
+            res_users_count, row['id'], row['name'], row['login'],
+        )
+
+        res_users_browse = res_users_model.browse([('name', '=', row['name']), ])
+        if res_users_browse.id == []:
+
+            values = {
+                'name': row['name'],
+                'partner_id': row['partner_id'],
+                'company_id': row['company_id'],
+                'login': row['login'],
+                'password_crypt': row['password_crypt'],
+                'image': row['image'],
+                # 'groups_id': row['groups_id'],
+            }
+            res_users_id = res_users_model.create(values).id
+
+            cursor2.execute(
+                '''
+                UPDATE ''' + table_name + '''
+                SET new_id = ?
+                WHERE id = ?;''',
+                (res_users_id,
+                 row['id']
+                 )
+            )
+
+            if row['groups_id'] != '[]':
+
+                groups_id = row['groups_id'].split(',')
+                new_groups_id = []
+                for x in range(0, len(groups_id)):
+                    group_id = int(re.sub('[^0-9]', '', groups_id[x]))
+                    # cursor2.execute(
+                    #     '''
+                    #     SELECT new_id
+                    #     FROM ''' + group_table_name + '''
+                    #     WHERE id = ?;''',
+                    #     (group_id,
+                    #      )
+                    # )
+                    # new_group_id = cursor2.fetchone()[0]
+
+                    values = {
+                        'groups_id': [(4, group_id)],
+                    }
+                    res_users_model.write(res_users_id, values)
+
+                    new_groups_id.append(group_id)
+
+                print('>>>>>', row[4], new_groups_id)
+
+    conn.commit()
+    conn.close()
+
+    print()
+    print('--> res_users_count: ', res_users_count)
