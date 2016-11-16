@@ -236,6 +236,14 @@ def hr_employee_export_sqlite(client, args, db_path, table_name):
         if employee_reg.job_id:
             job_id = employee_reg.job_id.id
 
+        # address_id = None
+        # if employee_reg.address_id:
+        #     address_id = employee_reg.address_id.id
+
+        # user_id = None
+        # if employee_reg.user_id:
+        #     user_id = employee_reg.user_id.id
+
         image = None
         if employee_reg.image:
             image = employee_reg.image
@@ -334,7 +342,7 @@ def hr_employee_import_sqlite(
 
             address_id = row['address_id']
             new_address_id = False
-            if department_id is not None:
+            if address_id is not None:
                 cursor2.execute(
                     '''
                     SELECT new_id
@@ -347,7 +355,7 @@ def hr_employee_import_sqlite(
 
             user_id = row['user_id']
             new_user_id = False
-            if department_id is not None:
+            if user_id is not None:
                 cursor2.execute(
                     '''
                     SELECT new_id
