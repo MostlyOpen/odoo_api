@@ -112,7 +112,9 @@ def person_address_export_sqlite(client, args, db_path, table_name):
     print('--> person_address_count: ', person_address_count)
 
 
-def person_address_import_sqlite(client, args, db_path, table_name, tag_table_name, role_table_name, person_table_name, address_table_name):
+def person_address_import_sqlite(
+    client, args, db_path, table_name, tag_table_name, role_table_name, person_table_name, address_table_name
+):
 
     person_model = client.model('myo.person.address')
 
