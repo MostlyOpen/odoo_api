@@ -263,7 +263,7 @@ def address_import_sqlite(client, args, db_path, table_name, tag_table_name, cat
             'fax': row['fax'],
             'email': row['email'],
             'state': row['state'],
-            'notes': row['state'],
+            'notes': row['notes'],
             'is_residence': row['is_residence'],
             'active': row['active'],
             'active_log': row['active_log'],
