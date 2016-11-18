@@ -22,6 +22,7 @@
 from __future__ import print_function
 
 import sqlite3
+import re
 
 
 def community_create_community(client, community_name, responsible_name, department_name):
@@ -163,3 +164,196 @@ def community_export_sqlite(client, args, db_path, table_name):
 
     print()
     print('--> community_count: ', community_count)
+
+
+def community_import_sqlite(
+    client, args, db_path, table_name, tag_table_name, category_table_name, res_users_table_name
+):
+
+    community_model = client.model('myo.community')
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+
+    cursor = conn.cursor()
+
+    cursor2 = conn.cursor()
+
+    community_count = 0
+
+    data = cursor.execute(
+        '''
+        SELECT
+            id,
+            tag_ids,
+            category_ids,
+            parent_id,
+            name,
+            alias,
+            code,
+            comm_location,
+            date_inclusion,
+            user_id,
+            notes,
+            active,
+            active_log,
+            new_id
+        FROM ''' + table_name + ''';
+        '''
+    )
+
+    print(data)
+    print([field[0] for field in cursor.description])
+    for row in cursor:
+        community_count += 1
+
+        print(community_count, row['id'], row['name'], row['code'], row['tag_ids'], row['category_ids'])
+
+        values = {
+            # 'tag_ids': row['tag_ids'],
+            # 'category_ids': row['category_ids'],
+            # 'parent_id': row['parent_id'],
+            'name': row['name'],
+            'alias': row['alias'],
+            'code': row['code'],
+            'comm_location': row['comm_location'],
+            'date_inclusion': row['date_inclusion'],
+            # 'user_id': row['user_id'],
+            'notes': row['notes'],
+            'active': row['active'],
+            'active_log': row['active_log'],
+        }
+        community_id = community_model.create(values).id
+
+        cursor2.execute(
+            '''
+           UPDATE ''' + table_name + '''
+           SET new_id = ?
+           WHERE id = ?;''',
+            (community_id,
+             row['id']
+             )
+        )
+
+        if row['tag_ids'] != '[]':
+
+            tag_ids = row['tag_ids'].split(',')
+            new_tag_ids = []
+            for x in range(0, len(tag_ids)):
+                tag_id = int(re.sub('[^0-9]', '', tag_ids[x]))
+                cursor2.execute(
+                    '''
+                    SELECT new_id
+                    FROM ''' + tag_table_name + '''
+                    WHERE id = ?;''',
+                    (tag_id,
+                     )
+                )
+                new_tag_id = cursor2.fetchone()[0]
+
+                values = {
+                    'tag_ids': [(4, new_tag_id)],
+                }
+                community_model.write(community_id, values)
+
+                new_tag_ids.append(new_tag_id)
+
+            print('>>>>>', row[4], new_tag_ids)
+
+        if row['category_ids'] != '[]':
+
+            category_ids = row['category_ids'].split(',')
+            new_category_ids = []
+            for x in range(0, len(category_ids)):
+                category_id = int(re.sub('[^0-9]', '', category_ids[x]))
+                cursor2.execute(
+                    '''
+                    SELECT new_id
+                    FROM ''' + category_table_name + '''
+                    WHERE id = ?;''',
+                    (category_id,
+                     )
+                )
+                new_category_id = cursor2.fetchone()[0]
+
+                values = {
+                    'category_ids': [(4, new_category_id)],
+                }
+                community_model.write(community_id, values)
+
+                new_category_ids.append(new_category_id)
+
+            print('>>>>>', row[4], new_category_ids)
+
+        if row['user_id']:
+
+            user_id = row['user_id']
+
+            cursor2.execute(
+                '''
+                SELECT new_id
+                FROM ''' + res_users_table_name + '''
+                WHERE id = ?;''',
+                (user_id,
+                 )
+            )
+            user_id = cursor2.fetchone()[0]
+
+            values = {
+                'user_id': user_id,
+            }
+            community_model.write(community_id, values)
+
+            print('>>>>>', row['user_id'], user_id)
+
+    conn.commit()
+
+    data = cursor.execute('''
+        SELECT
+            id,
+            tag_ids,
+            category_ids,
+            parent_id,
+            name,
+            alias,
+            code,
+            comm_location,
+            date_inclusion,
+            user_id,
+            notes,
+            active,
+            active_log,
+            new_id
+        FROM ''' + table_name + '''
+        WHERE parent_id IS NOT NULL;
+    ''')
+
+    community_count_2 = 0
+    for row in cursor:
+        community_count_2 += 1
+
+        print(community_count_2, row['id'], row['parent_id'], row['name'], row['code'], row['new_id'])
+
+        cursor2.execute(
+            '''
+            SELECT new_id
+            FROM ''' + table_name + '''
+            WHERE id = ?;''',
+            (row['parent_id'],
+             )
+        )
+        new_parent_id = cursor2.fetchone()[0]
+
+        print('>>>>>', row['id'], row['new_id'], row['parent_id'], new_parent_id)
+
+        values = {
+            'parent_id': new_parent_id,
+        }
+        community_model.write(row['new_id'], values)
+
+    conn.commit()
+    conn.close()
+
+    print()
+    print('--> community_count: ', community_count)
+    print('--> community_count_2: ', community_count_2)
