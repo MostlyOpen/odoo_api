@@ -44,6 +44,7 @@ def person_export_sqlite(client, args, db_path, table_name):
             name,
             alias,
             code,
+            user_id,
             gender,
             marital,
             birthday,
@@ -81,6 +82,10 @@ def person_export_sqlite(client, args, db_path, table_name):
         alias = None
         if person_reg.alias:
             alias = person_reg.alias
+
+        user_id = None
+        if person_reg.user_id:
+            user_id = person_reg.user_id.id
 
         birthday = None
         if person_reg.birthday:
@@ -142,6 +147,7 @@ def person_export_sqlite(client, args, db_path, table_name):
                 name,
                 alias,
                 code,
+                user_id,
                 gender,
                 marital,
                 birthday,
@@ -163,13 +169,14 @@ def person_export_sqlite(client, args, db_path, table_name):
                 active,
                 active_log
                 )
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ''', (person_reg.id,
                   str(person_reg.tag_ids.id),
                   str(person_reg.category_ids.id),
                   person_reg.name,
                   alias,
                   person_reg.code,
+                  user_id,
                   person_reg.gender,
                   marital,
                   birthday,
@@ -222,6 +229,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             name,
             alias,
             code,
+            user_id,
             gender,
             marital,
             birthday,
@@ -260,6 +268,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             'name': row['name'],
             'alias': row['alias'],
             'code': row['code'],
+            'user_id': row['user_id'],
             'gender': row['gender'],
             'marital': row['marital'],
             'birthday': row['birthday'],
@@ -374,6 +383,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             name,
             alias,
             code,
+            user_id,
             gender,
             marital,
             birthday,
@@ -432,6 +442,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             name,
             alias,
             code,
+            user_id,
             gender,
             marital,
             birthday,
@@ -490,6 +501,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             name,
             alias,
             code,
+            user_id
             gender,
             marital,
             birthday,
@@ -548,6 +560,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             name,
             alias,
             code,
+            user_id,
             gender,
             marital,
             birthday,
