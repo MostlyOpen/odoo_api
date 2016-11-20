@@ -99,7 +99,7 @@ def event_employee_import_sqlite(
     client, args, db_path, table_name, tag_table_name, role_table_name, event_table_name, employee_table_name
 ):
 
-    event_model = client.model('myo.event.employee')
+    event_employee_model = client.model('myo.event.employee')
 
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -108,7 +108,7 @@ def event_employee_import_sqlite(
 
     cursor2 = conn.cursor()
 
-    event_count = 0
+    event_employee_count = 0
 
     data = cursor.execute(
         '''
@@ -127,10 +127,10 @@ def event_employee_import_sqlite(
     print(data)
     print([field[0] for field in cursor.description])
     for row in cursor:
-        event_count += 1
+        event_employee_count += 1
 
         print(
-            event_count, row['id'], row['event_id'], row['employee_id'], row['role_id']
+            event_employee_count, row['id'], row['event_id'], row['employee_id'], row['role_id']
         )
 
         values = {
@@ -140,14 +140,14 @@ def event_employee_import_sqlite(
             'notes': row['notes'],
             'active': row['active'],
         }
-        event_id = event_model.create(values).id
+        event_employee_id = event_employee_model.create(values).id
 
         cursor2.execute(
             '''
            UPDATE ''' + table_name + '''
            SET new_id = ?
            WHERE id = ?;''',
-            (event_id,
+            (event_employee_id,
              row['id']
              )
         )
@@ -169,7 +169,7 @@ def event_employee_import_sqlite(
             values = {
                 'event_id': event_id,
             }
-            event_model.write(event_id, values)
+            event_employee_model.write(event_employee_id, values)
 
             print('>>>>>', row['event_id'], event_id)
 
@@ -190,7 +190,7 @@ def event_employee_import_sqlite(
             values = {
                 'employee_id': employee_id,
             }
-            event_model.write(event_id, values)
+            event_employee_model.write(event_employee_id, values)
 
             print('>>>>>', row['employee_id'], employee_id)
 
@@ -211,7 +211,7 @@ def event_employee_import_sqlite(
             values = {
                 'role_id': role_id,
             }
-            event_model.write(event_id, values)
+            event_employee_model.write(event_employee_id, values)
 
             print('>>>>>', row['role_id'], role_id)
 
@@ -219,4 +219,4 @@ def event_employee_import_sqlite(
     conn.close()
 
     print()
-    print('--> event_count: ', event_count)
+    print('--> event_employee_count: ', event_employee_count)
