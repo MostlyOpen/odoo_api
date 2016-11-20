@@ -100,7 +100,7 @@ def community_person_import_sqlite(
     client, args, db_path, table_name, tag_table_name, role_table_name, community_table_name, person_table_name
 ):
 
-    community_model = client.model('myo.community.person')
+    community_person_model = client.model('myo.community.person')
 
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -109,7 +109,7 @@ def community_person_import_sqlite(
 
     cursor2 = conn.cursor()
 
-    community_count = 0
+    community_person_count = 0
 
     data = cursor.execute(
         '''
@@ -128,10 +128,10 @@ def community_person_import_sqlite(
     print(data)
     print([field[0] for field in cursor.description])
     for row in cursor:
-        community_count += 1
+        community_person_count += 1
 
         print(
-            community_count, row['id'], row['community_id'], row['person_id'], row['role_id']
+            community_person_count, row['id'], row['community_id'], row['person_id'], row['role_id']
         )
 
         values = {
@@ -141,14 +141,14 @@ def community_person_import_sqlite(
             'notes': row['notes'],
             'active': row['active'],
         }
-        community_id = community_model.create(values).id
+        community_person_id = community_person_model.create(values).id
 
         cursor2.execute(
             '''
            UPDATE ''' + table_name + '''
            SET new_id = ?
            WHERE id = ?;''',
-            (community_id,
+            (community_person_id,
              row['id']
              )
         )
@@ -170,7 +170,7 @@ def community_person_import_sqlite(
             values = {
                 'community_id': community_id,
             }
-            community_model.write(community_id, values)
+            community_person_model.write(community_person_id, values)
 
             print('>>>>>', row['community_id'], community_id)
 
@@ -191,7 +191,7 @@ def community_person_import_sqlite(
             values = {
                 'person_id': person_id,
             }
-            community_model.write(community_id, values)
+            community_person_model.write(community_person_id, values)
 
             print('>>>>>', row['person_id'], person_id)
 
@@ -212,7 +212,7 @@ def community_person_import_sqlite(
             values = {
                 'role_id': role_id,
             }
-            community_model.write(community_id, values)
+            community_person_model.write(community_person_id, values)
 
             print('>>>>>', row['role_id'], role_id)
 
@@ -220,4 +220,4 @@ def community_person_import_sqlite(
     conn.close()
 
     print()
-    print('--> community_count: ', community_count)
+    print('--> community_person_count: ', community_person_count)
