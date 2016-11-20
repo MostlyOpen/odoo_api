@@ -45,6 +45,7 @@ def address_export_sqlite(client, args, db_path, table_name):
             name,
             alias,
             code,
+            user_id,
             zip,
             country_id,
             state_id,
@@ -84,6 +85,10 @@ def address_export_sqlite(client, args, db_path, table_name):
         alias = None
         if address_reg.alias:
             alias = address_reg.alias
+
+        user_id = None
+        if address_reg.user_id:
+            user_id = address_reg.user_id.id
 
         city = None
         if address_reg.city:
@@ -134,6 +139,7 @@ def address_export_sqlite(client, args, db_path, table_name):
                 name,
                 alias,
                 code,
+                user_id,
                 zip,
                 country_id,
                 state_id,
@@ -153,7 +159,7 @@ def address_export_sqlite(client, args, db_path, table_name):
                 active,
                 active_log
                 )
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ''', (address_reg.id,
                   str(address_reg.tag_ids.id),
                   str(address_reg.category_ids.id),
@@ -161,6 +167,7 @@ def address_export_sqlite(client, args, db_path, table_name):
                   address_reg.name,
                   alias,
                   address_reg.code,
+                  user_id,
                   address_reg.zip,
                   address_reg.country_id.id,
                   address_reg.state_id.id,
@@ -212,6 +219,7 @@ def address_import_sqlite(client, args, db_path, table_name, tag_table_name, cat
             name,
             alias,
             code,
+            user_id,
             zip,
             country_id,
             state_id,
@@ -249,6 +257,7 @@ def address_import_sqlite(client, args, db_path, table_name, tag_table_name, cat
             'name': row['name'],
             'alias': row['alias'],
             'code': row['code'],
+            'user_id': row['user_id'],
             'zip': row['zip'],
             'country_id': row['country_id'],
             'state_id': row['state_id'],
@@ -341,6 +350,7 @@ def address_import_sqlite(client, args, db_path, table_name, tag_table_name, cat
             name,
             alias,
             code,
+            user_id,
             zip,
             country_id,
             state_id,
