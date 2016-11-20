@@ -22,7 +22,7 @@
 from __future__ import print_function
 
 import sqlite3
-# import re
+import re
 
 
 def event_export_sqlite(client, args, db_path, table_name):
@@ -143,6 +143,186 @@ def event_export_sqlite(client, args, db_path, table_name):
                   event_reg.address_id.id,
                   )
         )
+
+    conn.commit()
+    conn.close()
+
+    print()
+    print('--> event_count: ', event_count)
+
+
+def event_import_sqlite(
+    client, args, db_path, table_name, tag_table_name, category_table_name, res_users_table_name, address_table_name
+):
+
+    event_model = client.model('myo.event')
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+
+    cursor = conn.cursor()
+
+    cursor2 = conn.cursor()
+
+    event_count = 0
+
+    data = cursor.execute(
+        '''
+        SELECT
+            id,
+            tag_ids,
+            category_ids,
+            name,
+            description,
+            code,
+            sequence,
+            planned_hours,
+            date_inclusion,
+            date_foreseen,
+            date_start,
+            date_deadline,
+            user_id,
+            notes,
+            color,
+            active,
+            state,
+            active_log,
+            address_id,
+            new_id
+        FROM ''' + table_name + ''';
+        '''
+    )
+
+    print(data)
+    print([field[0] for field in cursor.description])
+    for row in cursor:
+        event_count += 1
+
+        print(event_count, row['id'], row['name'], row['code'], row['tag_ids'], row['category_ids'])
+
+        values = {
+            # 'tag_ids': row['tag_ids'],
+            # 'category_ids': row['category_ids'],
+            'name': row['name'],
+            'description': row['description'],
+            'code': row['code'],
+            'sequence': row['sequence'],
+            'planned_hours': row['planned_hours'],
+            'date_inclusion': row['date_inclusion'],
+            'date_foreseen': row['date_foreseen'],
+            'date_start': row['date_start'],
+            'date_deadline': row['date_deadline'],
+            # 'user_id': row['user_id'],
+            'notes': row['notes'],
+            'color': row['color'],
+            'active': row['active'],
+            'state': row['state'],
+            'active_log': row['active_log'],
+            # 'address_id': row['address_id'],
+        }
+        event_id = event_model.create(values).id
+
+        cursor2.execute(
+            '''
+           UPDATE ''' + table_name + '''
+           SET new_id = ?
+           WHERE id = ?;''',
+            (event_id,
+             row['id']
+             )
+        )
+
+        if row['tag_ids'] != '[]':
+
+            tag_ids = row['tag_ids'].split(',')
+            new_tag_ids = []
+            for x in range(0, len(tag_ids)):
+                tag_id = int(re.sub('[^0-9]', '', tag_ids[x]))
+                cursor2.execute(
+                    '''
+                    SELECT new_id
+                    FROM ''' + tag_table_name + '''
+                    WHERE id = ?;''',
+                    (tag_id,
+                     )
+                )
+                new_tag_id = cursor2.fetchone()[0]
+
+                values = {
+                    'tag_ids': [(4, new_tag_id)],
+                }
+                event_model.write(event_id, values)
+
+                new_tag_ids.append(new_tag_id)
+
+            print('>>>>>', row[4], new_tag_ids)
+
+        if row['category_ids'] != '[]':
+
+            category_ids = row['category_ids'].split(',')
+            new_category_ids = []
+            for x in range(0, len(category_ids)):
+                category_id = int(re.sub('[^0-9]', '', category_ids[x]))
+                cursor2.execute(
+                    '''
+                    SELECT new_id
+                    FROM ''' + category_table_name + '''
+                    WHERE id = ?;''',
+                    (category_id,
+                     )
+                )
+                new_category_id = cursor2.fetchone()[0]
+
+                values = {
+                    'category_ids': [(4, new_category_id)],
+                }
+                event_model.write(event_id, values)
+
+                new_category_ids.append(new_category_id)
+
+            print('>>>>>', row[4], new_category_ids)
+
+        if row['user_id']:
+
+            user_id = row['user_id']
+
+            cursor2.execute(
+                '''
+                SELECT new_id
+                FROM ''' + res_users_table_name + '''
+                WHERE id = ?;''',
+                (user_id,
+                 )
+            )
+            user_id = cursor2.fetchone()[0]
+
+            values = {
+                'user_id': user_id,
+            }
+            event_model.write(event_id, values)
+
+            print('>>>>>', row['user_id'], user_id)
+
+        if row['address_id']:
+
+            address_id = row['address_id']
+
+            cursor2.execute(
+                '''
+                SELECT new_id
+                FROM ''' + address_table_name + '''
+                WHERE id = ?;''',
+                (address_id,
+                 )
+            )
+            address_id = cursor2.fetchone()[0]
+
+            values = {
+                'address_id': address_id,
+            }
+            event_model.write(event_id, values)
+
+            print('>>>>>', row['address_id'], address_id)
 
     conn.commit()
     conn.close()
