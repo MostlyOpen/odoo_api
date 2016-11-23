@@ -24,6 +24,19 @@ from __future__ import print_function
 import yaml
 import xlwt
 
+import linecache
+import sys
+
+
+def PrintException():
+    exc_type, exc_obj, tb = sys.exc_info()
+    f = tb.tb_frame
+    lineno = tb.tb_lineno
+    filename = f.f_code.co_filename
+    linecache.checkcache(filename)
+    line = linecache.getline(filename, lineno, f.f_globals)
+    print('EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
+
 
 def survey_label_matrix(
     doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, question_type, question_id, question_nr,
@@ -323,7 +336,19 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
 
         label_sequence = 0
         for key4 in sorted(doc[key1][key2][key3].keys()):
-            try:
+            if key3 in key4:
+                # try:
+                #     _model_ = doc[key1][key2][key3][key4]['model']
+                #     print('            ', key4, _model_)
+                #     if _model_ == 'survey.label':
+                #         label_sequence += 10
+                #         survey_label(
+                #             doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, _type_, _id_, _nr_,
+                #             label_sequence
+                #         )
+                # except Exception, e:
+                #     print('(1) >>>>>', e.message, e.args)
+                #     PrintException()
                 _model_ = doc[key1][key2][key3][key4]['model']
                 print('            ', key4, _model_)
                 if _model_ == 'survey.label':
@@ -332,8 +357,6 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
                         doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, _type_, _id_, _nr_,
                         label_sequence
                     )
-            except Exception, e:
-                print('>>>>>', e.message, e.args)
 
         if _comments_allowed_ == 'True':
             txt_file.write('            %s____________________________________\n' % (_comments_message_))
@@ -415,7 +438,19 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
 
         label_sequence = 0
         for key4 in sorted(doc[key1][key2][key3].keys()):
-            try:
+            if key3 in key4:
+                # try:
+                #     _model_ = doc[key1][key2][key3][key4]['model']
+                #     print('            ', key4, _model_)
+                #     if _model_ == 'survey.label':
+                #         label_sequence += 10
+                #         survey_label(
+                #             doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, _type_, _id_, _nr_,
+                #             label_sequence
+                #         )
+                # except Exception, e:
+                #     print('(2) >>>>>', e.message, e.args)
+                #     PrintException()
                 _model_ = doc[key1][key2][key3][key4]['model']
                 print('            ', key4, _model_)
                 if _model_ == 'survey.label':
@@ -424,8 +459,6 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
                         doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, _type_, _id_, _nr_,
                         label_sequence
                     )
-            except Exception, e:
-                print('>>>>>', e.message, e.args)
 
         if _comments_allowed_ == 'True':
             txt_file.write('            %s____________________________________\n' % (_comments_message_))
@@ -512,7 +545,19 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
 
         label_sequence = 0
         for key4 in sorted(doc[key1][key2][key3].keys()):
-            try:
+            if key3 in key4:
+                # try:
+                #     _model_ = doc[key1][key2][key3][key4]['model']
+                #     print('            ', key4, _model_)
+                #     if _model_ == 'survey.label.col' or _model_ == 'survey.label.row':
+                #         label_sequence += 10
+                #         survey_label_matrix(
+                #             doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, _type_, _id_, _nr_,
+                #             label_sequence
+                #         )
+                # except Exception, e:
+                #     print('(3) >>>>>', e.message, e.args)
+                #     PrintException()
                 _model_ = doc[key1][key2][key3][key4]['model']
                 print('            ', key4, _model_)
                 if _model_ == 'survey.label.col' or _model_ == 'survey.label.row':
@@ -521,8 +566,6 @@ def survey_question(doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, pa
                         doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, key4, _type_, _id_, _nr_,
                         label_sequence
                     )
-            except Exception, e:
-                print('>>>>>', e.message, e.args)
 
         row_nr += 1
 
@@ -576,7 +619,19 @@ def survey_page(doc, yaml_out_file, xml_file, txt_file, key1, key2, survey_id, p
 
     question_sequence = 0
     for key3 in sorted(doc[key1][key2].keys()):
-        try:
+        if key2 in key3:
+            # try:
+            #     _model_ = doc[key1][key2][key3]['model']
+            #     print('        ', key3, _model_)
+            #     if _model_ == 'survey.question':
+
+            #         question_sequence += 10
+            #         survey_question(
+            #             doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, _id_, _nr_, question_sequence
+            #         )
+            # except Exception, e:
+            #     print('(4) >>>>>', e.message, e.args)
+            #     PrintException()
             _model_ = doc[key1][key2][key3]['model']
             print('        ', key3, _model_)
             if _model_ == 'survey.question':
@@ -585,8 +640,6 @@ def survey_page(doc, yaml_out_file, xml_file, txt_file, key1, key2, survey_id, p
                 survey_question(
                     doc, yaml_out_file, xml_file, txt_file, key1, key2, key3, _id_, _nr_, question_sequence
                 )
-        except Exception, e:
-            print('>>>>>', e.message, e.args)
 
 
 def survey(doc, yaml_out_file, xml_file, txt_file, key1):
@@ -645,14 +698,21 @@ def survey(doc, yaml_out_file, xml_file, txt_file, key1):
 
     page_sequence = 0
     for key2 in sorted(doc[key1].keys()):
-        try:
+        if key1 in key2:
+            # try:
+            #     _model_ = doc[key1][key2]['model']
+            #     print('    ', key2, _model_)
+            #     if _model_ == 'survey.page':
+            #         page_sequence += 10
+            #         survey_page(doc, yaml_out_file, xml_file, txt_file, key1, key2, key1, page_sequence)
+            # except Exception, e:
+            #     print('(5) >>>>>', e.message, e.args)
+            #     PrintException()
             _model_ = doc[key1][key2]['model']
             print('    ', key2, _model_)
             if _model_ == 'survey.page':
                 page_sequence += 10
                 survey_page(doc, yaml_out_file, xml_file, txt_file, key1, key2, key1, page_sequence)
-        except Exception, e:
-            print('>>>>>', e.message, e.args)
 
 
 def survey_process_yaml(yaml_filename, yaml_out_filename, xml_filename, txt_filename, xls_filename):
