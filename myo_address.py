@@ -45,6 +45,7 @@ def address_export_sqlite(client, args, db_path, table_name):
             name,
             alias,
             code,
+            random_field,
             user_id,
             zip,
             country_id,
@@ -139,6 +140,7 @@ def address_export_sqlite(client, args, db_path, table_name):
                 name,
                 alias,
                 code,
+                random_field,
                 user_id,
                 zip,
                 country_id,
@@ -159,7 +161,7 @@ def address_export_sqlite(client, args, db_path, table_name):
                 active,
                 active_log
                 )
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ''', (address_reg.id,
                   str(address_reg.tag_ids.id),
                   str(address_reg.category_ids.id),
@@ -167,6 +169,7 @@ def address_export_sqlite(client, args, db_path, table_name):
                   address_reg.name,
                   alias,
                   address_reg.code,
+                  address_reg.random_field,
                   user_id,
                   address_reg.zip,
                   address_reg.country_id.id,
