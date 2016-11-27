@@ -44,6 +44,7 @@ def person_export_sqlite(client, args, db_path, table_name):
             name,
             alias,
             code,
+            random_field,
             user_id,
             gender,
             marital,
@@ -147,6 +148,7 @@ def person_export_sqlite(client, args, db_path, table_name):
                 name,
                 alias,
                 code,
+                random_field,
                 user_id,
                 gender,
                 marital,
@@ -169,13 +171,14 @@ def person_export_sqlite(client, args, db_path, table_name):
                 active,
                 active_log
                 )
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ''', (person_reg.id,
                   str(person_reg.tag_ids.id),
                   str(person_reg.category_ids.id),
                   person_reg.name,
                   alias,
                   person_reg.code,
+                  person_reg.random_field,
                   user_id,
                   person_reg.gender,
                   marital,
