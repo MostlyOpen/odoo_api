@@ -50,6 +50,7 @@ def person_export_sqlite(client, args, db_path, table_name):
             marital,
             birthday,
             estimated_age,
+            date_reference,
             spouse_id,
             father_id,
             mother_id,
@@ -95,6 +96,10 @@ def person_export_sqlite(client, args, db_path, table_name):
         estimated_age = None
         if person_reg.estimated_age:
             estimated_age = person_reg.estimated_age
+
+        date_reference = None
+        if person_reg.date_reference:
+            date_reference = person_reg.date_reference
 
         marital = None
         if person_reg.marital:
@@ -154,6 +159,7 @@ def person_export_sqlite(client, args, db_path, table_name):
                 marital,
                 birthday,
                 estimated_age,
+                date_reference,
                 spouse_id,
                 father_id,
                 mother_id,
@@ -171,7 +177,7 @@ def person_export_sqlite(client, args, db_path, table_name):
                 active,
                 active_log
                 )
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ''', (person_reg.id,
                   str(person_reg.tag_ids.id),
                   str(person_reg.category_ids.id),
@@ -184,6 +190,7 @@ def person_export_sqlite(client, args, db_path, table_name):
                   marital,
                   birthday,
                   estimated_age,
+                  date_reference,
                   spouse_id,
                   father_id,
                   mother_id,
@@ -238,6 +245,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             marital,
             birthday,
             estimated_age,
+            date_reference,
             spouse_id,
             father_id,
             mother_id,
@@ -278,6 +286,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             'marital': row['marital'],
             'birthday': row['birthday'],
             'estimated_age': row['estimated_age'],
+            'date_reference': row['date_reference'],
             # 'spouse_id': row['spouse_id'],
             # 'father_id': row['father_id'],
             # 'mother_id': row['mother_id'],
@@ -394,6 +403,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             marital,
             birthday,
             estimated_age,
+            date_reference,
             spouse_id,
             father_id,
             mother_id,
@@ -454,6 +464,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             marital,
             birthday,
             estimated_age,
+            date_reference,
             spouse_id,
             father_id,
             mother_id,
@@ -514,6 +525,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             marital,
             birthday,
             estimated_age,
+            date_reference,
             spouse_id,
             father_id,
             mother_id,
@@ -574,6 +586,7 @@ def person_import_sqlite(client, args, db_path, table_name, tag_table_name, cate
             marital,
             birthday,
             estimated_age,
+            date_reference,
             spouse_id,
             father_id,
             mother_id,
