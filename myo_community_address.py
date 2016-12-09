@@ -41,6 +41,8 @@ def community_address_export_sqlite(client, args, db_path, table_name):
             community_id,
             address_id,
             role_id,
+            sign_in_date,
+            sign_out_date,
             notes,
             active,
             new_id INTEGER
@@ -66,6 +68,14 @@ def community_address_export_sqlite(client, args, db_path, table_name):
         if community_address_reg.role_id:
             role_id = community_address_reg.role_id.id
 
+        sign_in_date = None
+        if community_address_reg.sign_in_date:
+            sign_in_date = community_address_reg.sign_in_date
+
+        sign_out_date = None
+        if community_address_reg.sign_out_date:
+            sign_out_date = community_address_reg.sign_out_date
+
         notes = None
         if community_address_reg.notes:
             notes = community_address_reg.notes
@@ -76,14 +86,18 @@ def community_address_export_sqlite(client, args, db_path, table_name):
                 community_id,
                 address_id,
                 role_id,
+                sign_in_date,
+                sign_out_date,
                 notes,
                 active
                 )
-            VALUES(?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?)
             ''', (community_address_reg.id,
                   community_address_reg.community_id.id,
                   community_address_reg.address_id.id,
                   role_id,
+                  sign_in_date,
+                  sign_out_date,
                   notes,
                   community_address_reg.active,
                   )
@@ -118,6 +132,8 @@ def community_address_import_sqlite(
             community_id,
             address_id,
             role_id,
+            sign_in_date,
+            sign_out_date,
             notes,
             active,
             new_id
@@ -138,6 +154,8 @@ def community_address_import_sqlite(
             # 'community_id': row['community_id'],
             # 'address_id': row['address_id'],
             # 'role_id': row['role_id'],
+            'sign_in_date': row['sign_in_date'],
+            'sign_out_date': row['sign_out_date'],
             'notes': row['notes'],
             'active': row['active'],
         }
